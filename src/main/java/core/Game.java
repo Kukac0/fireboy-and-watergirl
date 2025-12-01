@@ -18,6 +18,7 @@ public class Game  implements Runnable{
 
     public final static int TILES_DEFAULT_SIZE = 24;
     public final static float SCALE = 1.0f;
+    public final static float CHARACTER_SCALE = 2.0f;
     public final static int TILES_IN_WIDTH = 39;
     public final static int TILES_IN_HEIGHT = 29;
     public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
@@ -37,8 +38,9 @@ public class Game  implements Runnable{
     }
 
     private void initClasses() {
-        player = new Player(200, 200);
+        player = new Player(200, 200, TILES_SIZE * 2, TILES_SIZE * 2);
         levelHandler = new LevelHandler(this);
+        player.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
     }
 
     private void startGameLoop(){

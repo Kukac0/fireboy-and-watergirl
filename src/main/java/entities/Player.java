@@ -1,38 +1,70 @@
 package entities;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
+import static core.Game.CHARACTER_SCALE;
+import static core.Game.SCALE;
+import static core.Game.TILES_SIZE;
 import static utils.Constants.PlayerConstants.IDLE;
 import static utils.Constants.PlayerConstants.RUNNING;
 import static utils.Constants.PlayerConstants.getSpriteAmount;
+import static utils.HelpMethods.CanMoveHere;
 import utils.LoadSave;
 
 public class Player {
 
     private BufferedImage[][] animations;
     private float x, y;
+    private int width, height;
+    private int xOffset = 2 * (int)SCALE;
+    private int yOffset = 2 * (int)SCALE;
+    private final int CHARACTER_WIDTH = 10;
+    private final int CHARACTER_HEIGHT = 22;
+    private final int TRUE_CHARACTER_WIDTH = (int)(CHARACTER_WIDTH * CHARACTER_SCALE * SCALE);
+    private final int TRUE_CHARACTER_HEIGHT = (int)(CHARACTER_HEIGHT * CHARACTER_SCALE* SCALE);
+    private Rectangle hitbox; 
     private int aniTick, aniIndex, aniSpeed = 40;
     private int playerAction = IDLE;
     private boolean moving = false;
     private boolean up, left, down, right;
     private float playerSpeed = 2.0f;
+    private int[][] lvlData;
 
-    public Player(float x, float y) {
+    public Player(float x, float y, int width, int height) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
+        initHitbox();
         loadAnimations();
     }
+
+    private void initHitbox() {
+        hitbox = new Rectangle((int) x + xOffset, (int) y + yOffset, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT);
+    }
+
+    private void updateHitbox(){
+        hitbox.x = (int) x + xOffset;
+        hitbox.y = (int) y + yOffset;
+    }
+
+    public Rectangle getHitbox(){
+        return hitbox;
+    }
+
 
     public void update() {
 
         updatePos();
+        updateHitbox();
         updateAnimationTick();
         setAnimation();
     }
 
     public void render(Graphics g) {
-        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, 48, 48, null);
+        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, (int) (TILES_SIZE * CHARACTER_SCALE), (int) (TILES_SIZE * CHARACTER_SCALE), null);
 
     }
 
@@ -63,23 +95,32 @@ public class Player {
         }
     }
 
-    private void updatePos() {
+    public void loadLvlData(int[][] lvlData){
+        this.lvlData = lvlData;
+    }
 
+    private void updatePos() {
         moving = false;
 
-        if (left && !right) {
-            x -= playerSpeed;
-            moving = true;
-        } else if (!left && right) {
-            x += playerSpeed;
-            moving = true;
-        }
+        if (!left && !right && !up && !down)
+            return;
 
-        if (up && !down) {
-            y -= playerSpeed;
-            moving = true;
-        } else if (!up && down) {
-            y += playerSpeed;
+        float xSpeed = 0;
+        float ySpeed = 0;
+
+        if (left && !right) 
+            xSpeed = -playerSpeed;
+        else if (!left && right) 
+            xSpeed = playerSpeed;
+    
+        if (up && !down) 
+            ySpeed = -playerSpeed;
+        else if (!up && down) 
+            ySpeed = playerSpeed;
+
+        if (CanMoveHere(x + xOffset + xSpeed, y + yOffset + ySpeed , TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT, lvlData)) {
+            x += xSpeed;
+            y += ySpeed;
             moving = true;
         }
     }
