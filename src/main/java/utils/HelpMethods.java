@@ -9,11 +9,13 @@ public class HelpMethods {
         return (!IsSolid(x, y, lvlData) 
                 && !IsSolid(x + width, y + height, lvlData)
                     && !IsSolid(x + width, y, lvlData)
-                        && !IsSolid(x, y + height, lvlData));
+                        && !IsSolid(x, y + height, lvlData)
+                            && !IsSolid(x + width, y + height/2, lvlData)   //because the cahracter model is taller than a block
+                                && !IsSolid(x, y + height/2, lvlData));
 
     }
 
-    private static boolean IsSolid(float x, float y, int[][] lvlData){
+    public static boolean IsSolid(float x, float y, int[][] lvlData){
         if (x < 0 || x >= Game.GAME_WIDTH)
             return true;
         if (y < 0 || y >= Game.GAME_HEIGHT)
@@ -26,4 +28,5 @@ public class HelpMethods {
 
         return (value >= 42 || value < 0 || value != 6);
         }
+        
 }

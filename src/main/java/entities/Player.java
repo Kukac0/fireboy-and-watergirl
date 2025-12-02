@@ -7,7 +7,9 @@ import java.awt.image.BufferedImage;
 import static core.Game.CHARACTER_SCALE;
 import static core.Game.SCALE;
 import static core.Game.TILES_SIZE;
+import static utils.Constants.PlayerConstants.FALLING;
 import static utils.Constants.PlayerConstants.IDLE;
+import static utils.Constants.PlayerConstants.JUMPING;
 import static utils.Constants.PlayerConstants.RUNNING;
 import static utils.Constants.PlayerConstants.getSpriteAmount;
 import static utils.HelpMethods.CanMoveHere;
@@ -18,6 +20,8 @@ public class Player {
     private BufferedImage[][] animations;
     private float x, y;
     private int width, height;
+    private int flipX = 0;      //for flipping the sprite
+    private int flipW = 1;
     private int xOffset = 2 * (int)SCALE;
     private int yOffset = 2 * (int)SCALE;
     private final int CHARACTER_WIDTH = 10;
@@ -28,15 +32,22 @@ public class Player {
     private int aniTick, aniIndex, aniSpeed = 40;
     private int playerAction = IDLE;
     private boolean moving = false;
-    private boolean up, left, down, right;
+    private boolean left, right, jump;
     private float playerSpeed = 2.0f;
     private int[][] lvlData;
 
-    public Player(float x, float y, int width, int height) {
+    //Jump / Gravity
+    private float airSpeed = 0f;
+    private float gravity = 0.04f * SCALE;
+    private float jumpSpeed = -2.5f * SCALE;
+    private float fallSpeedAfterCollision = 0.5f * SCALE;
+    private boolean inAir = false;
+
+    public Player(float x, float y) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
+        this.width = TRUE_CHARACTER_WIDTH;
+        this.height = TRUE_CHARACTER_HEIGHT;
         initHitbox();
         loadAnimations();
     }
@@ -56,7 +67,6 @@ public class Player {
 
 
     public void update() {
-
         updatePos();
         updateHitbox();
         updateAnimationTick();
@@ -64,7 +74,12 @@ public class Player {
     }
 
     public void render(Graphics g) {
-        g.drawImage(animations[playerAction][aniIndex], (int) x, (int) y, (int) (TILES_SIZE * CHARACTER_SCALE), (int) (TILES_SIZE * CHARACTER_SCALE), null);
+        g.drawImage(animations[playerAction][aniIndex], 
+                    (int) (x + flipX),
+                    (int)  y,
+                    (int) (TILES_SIZE * CHARACTER_SCALE) * flipW,
+                    (int) (TILES_SIZE * CHARACTER_SCALE),
+                    null);
 
     }
 
@@ -75,6 +90,13 @@ public class Player {
             playerAction = RUNNING;
         else
             playerAction = IDLE;
+
+        if (inAir){
+            if (airSpeed < 0)
+                playerAction = JUMPING;
+            else
+                playerAction = FALLING;
+        }
 
         if (startAni != playerAction)
             resetAniTick();
@@ -102,26 +124,75 @@ public class Player {
     private void updatePos() {
         moving = false;
 
-        if (!left && !right && !up && !down)
+        if (jump)
+            jump();
+        
+        if (!inAir){
+            boolean leftFootInAir = utils.HelpMethods.IsSolid(x + xOffset, y + yOffset + TRUE_CHARACTER_HEIGHT + 1, lvlData);
+            boolean rightFootInAir = utils.HelpMethods.IsSolid(x + xOffset + TRUE_CHARACTER_WIDTH, y + yOffset + TRUE_CHARACTER_HEIGHT + 1, lvlData);    
+            
+            if (!leftFootInAir && !rightFootInAir)
+                inAir = true;
+        }
+
+        if (!isLeft() && !isRight() && !inAir){
+            moving = false;
             return;
+        }
 
         float xSpeed = 0;
-        float ySpeed = 0;
 
-        if (left && !right) 
-            xSpeed = -playerSpeed;
-        else if (!left && right) 
-            xSpeed = playerSpeed;
+        if (right && !left){
+            xSpeed += playerSpeed;
+            flipW = 1;
+            flipX = 0;
+            xOffset = 2 * (int)SCALE;
+        }
+
+        if (!right && left){
+            xSpeed -= playerSpeed;
+            flipW = -1;
+            flipX = TRUE_CHARACTER_WIDTH;
+            xOffset = -2 * (int)SCALE;
+        }
+            
+        if (inAir){
+            if (CanMoveHere(x + xOffset, y + yOffset + airSpeed, hitbox.width, hitbox.height, lvlData)){
+                y += airSpeed;
+                airSpeed += gravity;
+                updateXPos(xSpeed);
+            }else {
+                hitbox.y = (int)(y + yOffset);
+                if (airSpeed > 0)
+                    resetInAir();
+                else 
+                    airSpeed = fallSpeedAfterCollision;
+                updateXPos(xSpeed);
+            }
+        }else 
+            updateXPos(xSpeed);
+        moving = true;
+    }
+
     
-        if (up && !down) 
-            ySpeed = -playerSpeed;
-        else if (!up && down) 
-            ySpeed = playerSpeed;
 
-        if (CanMoveHere(x + xOffset + xSpeed, y + yOffset + ySpeed , TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT, lvlData)) {
+    private void jump() {
+        if (inAir)
+            return;
+        inAir = true;
+        airSpeed = jumpSpeed;
+    }
+
+    private void resetInAir() {
+        inAir = false;
+        airSpeed = 0;
+    }
+
+    private void updateXPos(float xSpeed) {
+        if (CanMoveHere(x + xOffset + xSpeed, y + yOffset, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT, lvlData)) {
             x += xSpeed;
-            y += ySpeed;
-            moving = true;
+        } else {
+            hitbox.x = (int)(x + xOffset);
         }
     }
 
@@ -136,18 +207,17 @@ public class Player {
     }
 
     public void reserDir() {
-        up = false;
+        jump = false;
         left = false;
-        down = false;
         right = false;
     }
 
-    public boolean isUp() {
-        return up;
+    public boolean isJump() {
+        return jump;
     }
 
-    public void setUp(boolean up) {
-        this.up = up;
+    public void setJump(boolean jump) {
+        this.jump = jump;
     }
 
     public boolean isLeft() {
@@ -158,13 +228,6 @@ public class Player {
         this.left = left;
     }
 
-    public boolean isDown() {
-        return down;
-    }
-
-    public void setDown(boolean down) {
-        this.down = down;
-    }
 
     public boolean isRight() {
         return right;
