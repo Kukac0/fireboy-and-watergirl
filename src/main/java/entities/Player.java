@@ -13,6 +13,7 @@ import static utils.Constants.PlayerConstants.JUMPING;
 import static utils.Constants.PlayerConstants.RUNNING;
 import static utils.Constants.PlayerConstants.getSpriteAmount;
 import static utils.HelpMethods.CanMoveHere;
+import static utils.HelpMethods.IsSlope;
 import utils.LoadSave;
 
 public class Player {
@@ -169,8 +170,16 @@ public class Player {
                     airSpeed = fallSpeedAfterCollision;
                 updateXPos(xSpeed);
             }
-        }else 
+
+            int tileX = (hitbox.x + hitbox.width / 2) / TILES_SIZE;
+            int tileY = (hitbox.y + hitbox.height) / TILES_SIZE;
+
+            if (IsSlope(lvlData[tileY][tileX])){
+               //HELP
+            }
+        } else 
             updateXPos(xSpeed);
+
         moving = true;
     }
 

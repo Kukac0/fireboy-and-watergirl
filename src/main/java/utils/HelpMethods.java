@@ -1,6 +1,8 @@
 package utils;
 
-import core.Game;
+import static core.Game.GAME_HEIGHT;
+import static core.Game.GAME_WIDTH;
+import static core.Game.TILES_SIZE;
 
 public class HelpMethods {
 
@@ -16,17 +18,25 @@ public class HelpMethods {
     }
 
     public static boolean IsSolid(float x, float y, int[][] lvlData){
-        if (x < 0 || x >= Game.GAME_WIDTH)
+        if (x < 0 || x >= GAME_WIDTH)
             return true;
-        if (y < 0 || y >= Game.GAME_HEIGHT)
+        if (y < 0 || y >= GAME_HEIGHT)
             return true;
         
-        float xIndex = x/Game.TILES_SIZE;
-        float yIndex = y/Game.TILES_SIZE;
+        float xIndex = x/TILES_SIZE;
+        float yIndex = y/TILES_SIZE;
 
         int value = lvlData[(int)yIndex][(int)xIndex];
 
+        if (IsSlope(value))
+            return false;
+
         return (value >= 42 || value < 0 || value != 6);
         }
-        
+
+    public static boolean IsSlope(int id) {
+        return (id == 21 || id == 22 || id == 28 || id == 29);
+    }
+
+
 }
