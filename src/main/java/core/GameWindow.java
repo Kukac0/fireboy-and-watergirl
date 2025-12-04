@@ -9,11 +9,12 @@ public class GameWindow extends JFrame{
 
     public GameWindow(GamePanel gamePanel){
         
+        setTitle("Fireboy & Watergirl");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         add(gamePanel);
-        setLocationRelativeTo(null);
         setResizable(false);
         pack();
+        setLocationRelativeTo(null);
         setVisible(true);
         addWindowFocusListener(new WindowFocusListener() {
 

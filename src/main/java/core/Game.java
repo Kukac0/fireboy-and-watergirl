@@ -3,7 +3,15 @@ package core;
 import java.awt.Graphics;
 
 import entities.Player;
+import gamestates.GameState;
+import static gamestates.GameState.MENU;
+import static gamestates.GameState.PLAYING;
+import static gamestates.GameState.QUIT;
+import gamestates.Menu;
+import gamestates.Won;
+import levels.Level;
 import levels.LevelHandler;
+import utils.ScoreHandler;
 
 public class Game  implements Runnable{
     
@@ -13,8 +21,12 @@ public class Game  implements Runnable{
     private final int FPS_SET = 120;
     private final int UPS_SET = 200;
 
-    private Player player;
+    private Player player1, player2;
     private LevelHandler levelHandler;
+    private Won won;
+    private Menu menu;
+    private long startTime;
+    private ScoreHandler scoreHandler;
 
     public final static int TILES_DEFAULT_SIZE = 24;
     public final static float SCALE = 1.0f;
@@ -38,9 +50,15 @@ public class Game  implements Runnable{
     }
 
     private void initClasses() {
-        player = new Player(200, 200);
+        menu = new Menu(this);
+        won = new Won(this);
+        startTime = System.currentTimeMillis();
+        scoreHandler = new ScoreHandler();
+        player1 = new Player(100, 100);
+        player2 = new Player(150, 100);
         levelHandler = new LevelHandler(this);
-        player.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
+        player1.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
+        player2.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
     }
 
     private void startGameLoop(){
@@ -48,14 +66,38 @@ public class Game  implements Runnable{
         gameThread.start();
     }
 
+    public void startNewGame(){
+        player1.reset();
+        player2.reset();
+        startTime = System.currentTimeMillis();
+        GameState.state = PLAYING;
+    }
+
     public void update(){
-        player.update();
-        levelHandler.update();
+        switch (GameState.state) {
+            case MENU -> menu.update();
+            case PLAYING -> {
+                player1.update();
+                player2.update();
+                levelHandler.update();
+            }
+            case WON -> won.update();
+            case QUIT -> System.exit(0);
+        }
     }
 
     public void render(Graphics g){
-        levelHandler.draw(g);
-        player.render(g);
+        switch (GameState.state) {
+            case MENU -> menu.draw(g);
+            case PLAYING -> {
+                levelHandler.draw(g);
+                player1.render(g);
+                player2.render(g);
+            }
+            case WON -> {
+                won.draw(g);
+            }
+        }
     }
 
 
@@ -105,10 +147,36 @@ public class Game  implements Runnable{
     }
 
     public void windowFocusLost(){
-        player.reserDir();
+        player1.reserDir();
+        player2.reserDir();
     }
 
-    public Player getPlayer(){
-        return player;
+    public ScoreHandler getScoreHandler(){
+        return scoreHandler;
+    }
+
+    public long getStartTime(){
+        return startTime;
+    }
+
+    public Won getWon(){
+        return won;
+    }
+
+    private void resetPlayers() {
+        Level level = levelHandler.getCurrentLevel();
+        player1.setLocation(level.p1StartX, level.p1StartY);
+        player2.setLocation(level.p2StartX, level.p2StartY);
+
+        player1.reset();
+        player2.reset();
+    }
+
+    public Player getPlayer1(){
+        return player1;
+    }
+
+    public Player getPlayer2(){
+        return player2;
     }
 }

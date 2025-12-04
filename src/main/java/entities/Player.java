@@ -13,7 +13,6 @@ import static utils.Constants.PlayerConstants.JUMPING;
 import static utils.Constants.PlayerConstants.RUNNING;
 import static utils.Constants.PlayerConstants.getSpriteAmount;
 import static utils.HelpMethods.CanMoveHere;
-import static utils.HelpMethods.IsSlope;
 import utils.LoadSave;
 
 public class Player {
@@ -51,6 +50,12 @@ public class Player {
         this.height = TRUE_CHARACTER_HEIGHT;
         initHitbox();
         loadAnimations();
+    }
+
+    public void reset() {
+        inAir = false;
+        airSpeed = 0;
+        reserDir();
     }
 
     private void initHitbox() {
@@ -170,20 +175,39 @@ public class Player {
                     airSpeed = fallSpeedAfterCollision;
                 updateXPos(xSpeed);
             }
-
-            int tileX = (hitbox.x + hitbox.width / 2) / TILES_SIZE;
-            int tileY = (hitbox.y + hitbox.height) / TILES_SIZE;
-
-            if (IsSlope(lvlData[tileY][tileX])){
-               //HELP
-            }
         } else 
             updateXPos(xSpeed);
 
+        int tileX =(hitbox.x + hitbox.width / 2) / TILES_SIZE;
+        int tileY =(hitbox.y + hitbox.height - 1) / TILES_SIZE;
+
+        if (tileY < lvlData.length && tileX < lvlData[0].length && tileY >= 0 && tileX >= 0) {
+            int tileId = lvlData[tileY][tileX];
+
+        if (utils.HelpMethods.IsSlope(tileId)) {
+            float slopeY = 0;
+        
+        float xDiff = 0;
+
+        if (tileId == 21) {
+            xDiff = hitbox.x - (float)(tileX * TILES_SIZE);
+            slopeY = (tileY * TILES_SIZE) + xDiff;
+            
+        } 
+        else if (tileId == 28) {
+            xDiff = (hitbox.x + hitbox.width) - (float)(tileX * TILES_SIZE);
+            slopeY = (tileY * TILES_SIZE) + TILES_SIZE - xDiff; 
+        }
+        
+        if (hitbox.y + hitbox.height > slopeY) {
+            y = slopeY - hitbox.height - yOffset + 1; 
+            airSpeed = 0;
+            inAir = false; 
+        }
+        }
+    }
         moving = true;
     }
-
-    
 
     private void jump() {
         if (inAir)
@@ -198,7 +222,7 @@ public class Player {
     }
 
     private void updateXPos(float xSpeed) {
-        if (CanMoveHere(x + xOffset + xSpeed, y + yOffset, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT, lvlData)) {
+        if (CanMoveHere(x + xOffset + xSpeed, y + yOffset, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
             x += xSpeed;
         } else {
             hitbox.x = (int)(x + xOffset);
@@ -219,6 +243,11 @@ public class Player {
         jump = false;
         left = false;
         right = false;
+    }
+
+    public void setLocation(int x, int y){
+        this.x = x;
+        this.y = y;
     }
 
     public boolean isJump() {
