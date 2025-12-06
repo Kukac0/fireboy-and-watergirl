@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import javax.swing.JOptionPane;
 
 import core.Game;
-import static gamestates.GameState.MENU;
 import utils.Score;
 
 public class Won {
@@ -37,9 +36,14 @@ public class Won {
         g.drawString(text, (Game.GAME_WIDTH - textWidth) / 2, 150);
 
         g.setFont(new Font("Arial", Font.PLAIN, 20));
-        String info = "Press ENTER To Save Your Score";
-        int infoWidth = g.getFontMetrics().stringWidth(info);
-        g.drawString(info, (Game.GAME_WIDTH - infoWidth) / 2, 250);
+        String saveInfo = "Press ENTER To Save Your Score";
+        int saveWidth = g.getFontMetrics().stringWidth(saveInfo);
+        g.drawString(saveInfo, (Game.GAME_WIDTH - saveWidth) / 2, 300);
+
+        g.setFont(new Font("Arial", Font.PLAIN, 20));
+        String closeInfo = "Press ESC To Return To The Menu";
+        int closeWidth = g.getFontMetrics().stringWidth(closeInfo);
+        g.drawString(closeInfo, (Game.GAME_WIDTH - closeWidth) / 2, 350);
         
         // Completion Time
         int minute = completionTime / 60;
@@ -47,7 +51,7 @@ public class Won {
         String timeStr = "Your Time: " + String.format("%02d:%02d", minute, second);
         int timeWidth = g.getFontMetrics().stringWidth(timeStr);
         g.setColor(Color.YELLOW);
-        g.drawString(timeStr, (Game.GAME_WIDTH - timeWidth) / 2, 300);
+        g.drawString(timeStr, (Game.GAME_WIDTH - timeWidth) / 2, 250);
     }
     
     public void saveScore() {
@@ -56,14 +60,13 @@ public class Won {
 
         String name = JOptionPane.showInputDialog(null, 
             "Good Job!\nWhat's your name?", 
-            "Enter Name",
+            "Saving Score",
             JOptionPane.QUESTION_MESSAGE);
 
         if (name != null && !name.trim().isEmpty()) {
             Score score = new Score(name, timeInSeconds);
             game.getScoreHandler().addScore(score);
         }
-
-        GameState.state = MENU;
+        GameState.state = GameState.MENU;
     }
 }

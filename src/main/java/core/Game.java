@@ -52,10 +52,9 @@ public class Game  implements Runnable{
     private void initClasses() {
         menu = new Menu(this);
         won = new Won(this);
-        startTime = System.currentTimeMillis();
         scoreHandler = new ScoreHandler();
-        player1 = new Player(100, 100);
-        player2 = new Player(150, 100);
+        player1 = new Player(0, 0);
+        player2 = new Player(0, 0);
         levelHandler = new LevelHandler(this);
         player1.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
         player2.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
@@ -67,8 +66,7 @@ public class Game  implements Runnable{
     }
 
     public void startNewGame(){
-        player1.reset();
-        player2.reset();
+        resetPlayers();
         startTime = System.currentTimeMillis();
         GameState.state = PLAYING;
     }

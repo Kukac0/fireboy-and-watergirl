@@ -29,7 +29,7 @@ public class Menu {
     }
 
     public void update() {
-        //future animations may go here
+
     }
 
     public void draw(Graphics g) {

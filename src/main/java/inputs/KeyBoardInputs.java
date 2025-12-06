@@ -47,7 +47,7 @@ public class KeyBoardInputs implements KeyListener{
         switch (GameState.state) {
             case MENU -> {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    GameState.state = GameState.PLAYING;
+                    gamePanel.getGame().startNewGame();
                 } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     GameState.state = GameState.QUIT;
                 }
@@ -68,9 +68,11 @@ public class KeyBoardInputs implements KeyListener{
             }        
             
             case WON -> {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER)
                     gamePanel.getGame().getWon().saveScore();
-                }
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    GameState.state = GameState.MENU;
+                
             }
         }
     }
