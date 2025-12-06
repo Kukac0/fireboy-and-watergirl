@@ -16,7 +16,10 @@ public class Won {
 
     public Won(Game game) {
         this.game = game;
-        this.completionTime = (int)(System.currentTimeMillis()/1000) - (int)(game.getStartTime()/1000);
+    }
+
+    public void setCompletionTime() {
+        this.completionTime = (int) ((System.currentTimeMillis() - game.getStartTime()) / 1000);
     }
 
     public void update(){
@@ -46,8 +49,8 @@ public class Won {
         g.drawString(closeInfo, (Game.GAME_WIDTH - closeWidth) / 2, 350);
         
         // Completion Time
-        int minute = completionTime / 60;
-        int second = completionTime % 60;
+        int minute = this.completionTime / 60;
+        int second = this.completionTime % 60;
         String timeStr = "Your Time: " + String.format("%02d:%02d", minute, second);
         int timeWidth = g.getFontMetrics().stringWidth(timeStr);
         g.setColor(Color.YELLOW);
@@ -55,16 +58,13 @@ public class Won {
     }
     
     public void saveScore() {
-        long currentTime = System.currentTimeMillis();
-        int timeInSeconds = (int) ((currentTime - game.getStartTime()) / 1000);
-
         String name = JOptionPane.showInputDialog(null, 
             "Good Job!\nWhat's your name?", 
             "Saving Score",
             JOptionPane.QUESTION_MESSAGE);
 
         if (name != null && !name.trim().isEmpty()) {
-            Score score = new Score(name, timeInSeconds);
+            Score score = new Score(name, this.completionTime);
             game.getScoreHandler().addScore(score);
         }
         GameState.state = GameState.MENU;

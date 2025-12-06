@@ -15,7 +15,7 @@ public class Menu {
 
     public Menu(Game game) {
         this.game = game;
-        this.scoreHandler = new ScoreHandler();
+        this.scoreHandler = game.getScoreHandler();
 
         if (scoreHandler.getScores().isEmpty()) {
             scoreHandler = new ScoreHandler();

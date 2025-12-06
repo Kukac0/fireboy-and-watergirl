@@ -62,7 +62,10 @@ public class KeyBoardInputs implements KeyListener{
                     case KeyEvent.VK_LEFT: player2.setLeft(true); break;
                     case KeyEvent.VK_RIGHT: player2.setRight(true); break;
                     
-                    case KeyEvent.VK_T: GameState.state = GameState.WON; break; //for testing
+                    case KeyEvent.VK_T:     //for testing
+                            GameState.state = GameState.WON;
+                            gamePanel.getGame().getWon().setCompletionTime();        
+                            break;
                     default: break;
                 }
             }        

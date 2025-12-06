@@ -17,31 +17,31 @@ import utils.LoadSave;
 
 public class Player {
 
-    private BufferedImage[][] animations;
-    private float x, y;
-    private int width, height;
+    protected BufferedImage[][] animations;
+    protected float x, y;
+    protected int width, height;
     private int flipX = 0;      //for flipping the sprite
     private int flipW = 1;
-    private int xOffset = 2 * (int)SCALE;
-    private int yOffset = 2 * (int)SCALE;
-    private final int CHARACTER_WIDTH = 10;
-    private final int CHARACTER_HEIGHT = 22;
-    private final int TRUE_CHARACTER_WIDTH = (int)(CHARACTER_WIDTH * CHARACTER_SCALE * SCALE);
-    private final int TRUE_CHARACTER_HEIGHT = (int)(CHARACTER_HEIGHT * CHARACTER_SCALE* SCALE);
-    private Rectangle hitbox; 
+    private int xOffset = 2 * (int) SCALE;
+    private static final int Y_OFFSET = 2 * (int) SCALE;
+    private static final int CHARACTER_WIDTH = 10;
+    private static final int CHARACTER_HEIGHT = 22;
+    private static final int TRUE_CHARACTER_WIDTH = (int) (CHARACTER_WIDTH * CHARACTER_SCALE * SCALE);
+    private static final int TRUE_CHARACTER_HEIGHT = (int) (CHARACTER_HEIGHT * CHARACTER_SCALE * SCALE);
+    private Rectangle hitbox;
     private int aniTick, aniIndex, aniSpeed = 40;
-    private int playerAction = IDLE;
-    private boolean moving = false;
-    private boolean left, right, jump;
-    private float playerSpeed = 2.0f;
-    private int[][] lvlData;
+    protected int playerAction = IDLE;
+    protected boolean moving = false;
+    protected boolean left, right, jump;
+    protected float playerSpeed = 2.0f;
+    protected int[][] lvlData;
 
     //Jump / Gravity
-    private float airSpeed = 0f;
-    private float gravity = 0.04f * SCALE;
-    private float jumpSpeed = -2.5f * SCALE;
-    private float fallSpeedAfterCollision = 0.5f * SCALE;
-    private boolean inAir = false;
+    protected float airSpeed = 0f;
+    protected float gravity = 0.04f * SCALE;
+    protected float jumpSpeed = -2.5f * SCALE;
+    protected float fallSpeedAfterCollision = 0.5f * SCALE;
+    protected boolean inAir = false;
 
     public Player(float x, float y) {
         this.x = x;
@@ -49,7 +49,6 @@ public class Player {
         this.width = TRUE_CHARACTER_WIDTH;
         this.height = TRUE_CHARACTER_HEIGHT;
         initHitbox();
-        loadAnimations();
     }
 
     public void reset() {
@@ -59,18 +58,17 @@ public class Player {
     }
 
     private void initHitbox() {
-        hitbox = new Rectangle((int) x + xOffset, (int) y + yOffset, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT);
+        hitbox = new Rectangle((int) x + xOffset, (int) y + Y_OFFSET, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT);
     }
 
-    private void updateHitbox(){
+    private void updateHitbox() {
         hitbox.x = (int) x + xOffset;
-        hitbox.y = (int) y + yOffset;
+        hitbox.y = (int) y + Y_OFFSET;
     }
 
-    public Rectangle getHitbox(){
+    public Rectangle getHitbox() {
         return hitbox;
     }
-
 
     public void update() {
         updatePos();
@@ -80,32 +78,35 @@ public class Player {
     }
 
     public void render(Graphics g) {
-        g.drawImage(animations[playerAction][aniIndex], 
-                    (int) (x + flipX),
-                    (int)  y,
-                    (int) (TILES_SIZE * CHARACTER_SCALE) * flipW,
-                    (int) (TILES_SIZE * CHARACTER_SCALE),
-                    null);
+        g.drawImage(animations[playerAction][aniIndex],
+                (int) (x + flipX),
+                (int) y,
+                (int) (TILES_SIZE * CHARACTER_SCALE) * flipW,
+                (int) (TILES_SIZE * CHARACTER_SCALE),
+                null);
 
     }
 
     private void setAnimation() {
         int startAni = playerAction;
 
-        if (moving)
+        if (moving) {
             playerAction = RUNNING;
-        else
+        } else {
             playerAction = IDLE;
-
-        if (inAir){
-            if (airSpeed < 0)
-                playerAction = JUMPING;
-            else
-                playerAction = FALLING;
         }
 
-        if (startAni != playerAction)
+        if (inAir) {
+            if (airSpeed < 0) {
+                playerAction = JUMPING;
+            } else {
+                playerAction = FALLING;
+            }
+        }
+
+        if (startAni != playerAction) {
             resetAniTick();
+        }
     }
 
     private void resetAniTick() {
@@ -118,100 +119,113 @@ public class Player {
         if (aniTick >= aniSpeed) {
             aniTick = 0;
             aniIndex++;
-            if (aniIndex >= getSpriteAmount(playerAction))
+            if (aniIndex >= getSpriteAmount(playerAction)) {
                 aniIndex = 0;
+            }
         }
     }
 
-    public void loadLvlData(int[][] lvlData){
+    public void loadLvlData(int[][] lvlData) {
         this.lvlData = lvlData;
     }
 
     private void updatePos() {
         moving = false;
 
-        if (jump)
+        if (jump) {
             jump();
-        
-        if (!inAir){
-            boolean leftFootInAir = utils.HelpMethods.IsSolid(x + xOffset, y + yOffset + TRUE_CHARACTER_HEIGHT + 1, lvlData);
-            boolean rightFootInAir = utils.HelpMethods.IsSolid(x + xOffset + TRUE_CHARACTER_WIDTH, y + yOffset + TRUE_CHARACTER_HEIGHT + 1, lvlData);    
-            
-            if (!leftFootInAir && !rightFootInAir)
-                inAir = true;
         }
 
-        if (!isLeft() && !isRight() && !inAir){
+        if (!inAir && !isPlayerOnFloor()) {
+            inAir = true;
+        }
+
+        if (!isLeft() && !isRight() && !inAir) {
             moving = false;
             return;
         }
 
         float xSpeed = 0;
 
-        if (right && !left){
+        if (right && !left) {
             xSpeed += playerSpeed;
             flipW = 1;
             flipX = 0;
-            xOffset = 2 * (int)SCALE;
+            xOffset = 2 * (int) SCALE;
         }
 
-        if (!right && left){
+        if (!right && left) {
             xSpeed -= playerSpeed;
             flipW = -1;
             flipX = TRUE_CHARACTER_WIDTH;
-            xOffset = -2 * (int)SCALE;
+            xOffset = -2 * (int) SCALE;
         }
-            
-        if (inAir){
-            if (CanMoveHere(x + xOffset, y + yOffset + airSpeed, hitbox.width, hitbox.height, lvlData)){
-                y += airSpeed;
-                airSpeed += gravity;
-                updateXPos(xSpeed);
-            }else {
-                hitbox.y = (int)(y + yOffset);
-                if (airSpeed > 0)
-                    resetInAir();
-                else 
-                    airSpeed = fallSpeedAfterCollision;
-                updateXPos(xSpeed);
-            }
-        } else 
-            updateXPos(xSpeed);
 
-        int tileX =(hitbox.x + hitbox.width / 2) / TILES_SIZE;
-        int tileY =(hitbox.y + hitbox.height - 1) / TILES_SIZE;
+        if (inAir) {
+            movingInAir(xSpeed);
+        } else {
+            updateXPos(xSpeed);
+        }
+
+        int tileX = (hitbox.x + hitbox.width / 2) / TILES_SIZE;
+        int tileY = (hitbox.y + hitbox.height - 1) / TILES_SIZE;
 
         if (tileY < lvlData.length && tileX < lvlData[0].length && tileY >= 0 && tileX >= 0) {
             int tileId = lvlData[tileY][tileX];
-
-        if (utils.HelpMethods.IsSlope(tileId)) {
-            float slopeY = 0;
-        
-        float xDiff = 0;
-
-        if (tileId == 21) {
-            xDiff = hitbox.x - (float)(tileX * TILES_SIZE);
-            slopeY = (tileY * TILES_SIZE) + xDiff;
-            
-        } 
-        else if (tileId == 28) {
-            xDiff = (hitbox.x + hitbox.width) - (float)(tileX * TILES_SIZE);
-            slopeY = (tileY * TILES_SIZE) + TILES_SIZE - xDiff; 
+            tileInteractions(tileId, tileX, tileY);
         }
-        
-        if (hitbox.y + hitbox.height > slopeY) {
-            y = slopeY - hitbox.height - yOffset + 1; 
-            airSpeed = 0;
-            inAir = false; 
-        }
+        if (left || right) {
+            moving = true;
         }
     }
-        moving = true;
+
+    private void movingInAir(float xSpeed) {
+        if (CanMoveHere(x + xOffset, y + Y_OFFSET + airSpeed, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
+            y += airSpeed;
+            airSpeed += gravity;
+            updateXPos(xSpeed);
+        } else {
+            hitbox.y = (int) (y + Y_OFFSET);
+            if (airSpeed > 0) {
+                resetInAir();
+            } else {
+                airSpeed = fallSpeedAfterCollision;
+            }
+            updateXPos(xSpeed);
+        }
+    }
+
+    protected void tileInteractions(int tileId, int tileX, int tileY) {
+        if (utils.HelpMethods.IsSlope(tileId)) {
+            slopeInteractions(tileId, tileX, tileY);
+        }
+    }
+
+    private void slopeInteractions(int tileId, int tileX, int tileY) {
+        float slopeY = 0;
+        float xDiff = 0;
+
+        if (!left && !right) {
+            moving = false;
+        }
+        if (tileId == 21) {
+            xDiff = hitbox.x - (float) (tileX * TILES_SIZE);
+            slopeY = (tileY * TILES_SIZE) + xDiff;
+        } else if (tileId == 28) {
+            xDiff = (hitbox.x + hitbox.width) - (float) (tileX * TILES_SIZE);
+            slopeY = (tileY * TILES_SIZE) + TILES_SIZE - xDiff;
+        }
+        if (airSpeed >= 0 && hitbox.y + hitbox.height > slopeY) {
+            y = slopeY - hitbox.height - Y_OFFSET + 1;
+            airSpeed = 0;
+            inAir = false;
+        }
     }
 
     private void jump() {
-        if (inAir)
+        if (inAir) {
             return;
+        }
         inAir = true;
         airSpeed = jumpSpeed;
     }
@@ -221,22 +235,30 @@ public class Player {
         airSpeed = 0;
     }
 
+    private boolean isPlayerOnFloor() {
+        boolean leftFootOnGround = utils.HelpMethods.IsSolid(x + xOffset, y + Y_OFFSET + TRUE_CHARACTER_HEIGHT + 1, lvlData);
+        boolean rightFootOnGround = utils.HelpMethods.IsSolid(x + xOffset + TRUE_CHARACTER_WIDTH, y + Y_OFFSET + TRUE_CHARACTER_HEIGHT + 1, lvlData);
+
+        return leftFootOnGround || rightFootOnGround;
+    }
+
     private void updateXPos(float xSpeed) {
-        if (CanMoveHere(x + xOffset + xSpeed, y + yOffset, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
+        if (CanMoveHere(x + xOffset + xSpeed, y + Y_OFFSET, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
             x += xSpeed;
         } else {
-            hitbox.x = (int)(x + xOffset);
+            hitbox.x = (int) (x + xOffset);
         }
     }
 
-    private void loadAnimations() {
-        BufferedImage img = LoadSave.GetSpriteAtlas(LoadSave.PLAYER_ATLAS);
+    protected void loadAnimations(String filename) {
+        BufferedImage img = LoadSave.GetSpriteAtlas(filename);
         animations = new BufferedImage[4][4];
 
-        for (int j = 0; j < animations.length; j++)
-            for (int i = 0; i < animations.length; i++)
+        for (int j = 0; j < animations.length; j++) {
+            for (int i = 0; i < animations.length; i++) {
                 animations[j][i] = img.getSubimage(i * 24, j * 24, 24, 24);
-
+            }
+        }
     }
 
     public void reserDir() {
@@ -245,7 +267,7 @@ public class Player {
         right = false;
     }
 
-    public void setLocation(int x, int y){
+    public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -265,7 +287,6 @@ public class Player {
     public void setLeft(boolean left) {
         this.left = left;
     }
-
 
     public boolean isRight() {
         return right;

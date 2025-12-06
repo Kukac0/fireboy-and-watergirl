@@ -2,7 +2,9 @@ package core;
 
 import java.awt.Graphics;
 
+import entities.Fireboy;
 import entities.Player;
+import entities.Watergirl;
 import gamestates.GameState;
 import static gamestates.GameState.MENU;
 import static gamestates.GameState.PLAYING;
@@ -13,8 +15,8 @@ import levels.Level;
 import levels.LevelHandler;
 import utils.ScoreHandler;
 
-public class Game  implements Runnable{
-    
+public class Game implements Runnable {
+
     private GameWindow gameWindow;
     private GamePanel gamePanel;
     private Thread gameThread;
@@ -36,11 +38,8 @@ public class Game  implements Runnable{
     public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
     public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
     public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
-    
-    
 
-
-    public Game(){
+    public Game() {
         initClasses();
         gamePanel = new GamePanel(this);
         gameWindow = new GameWindow(gamePanel);
@@ -50,43 +49,47 @@ public class Game  implements Runnable{
     }
 
     private void initClasses() {
+        scoreHandler = new ScoreHandler();
         menu = new Menu(this);
         won = new Won(this);
-        scoreHandler = new ScoreHandler();
-        player1 = new Player(0, 0);
-        player2 = new Player(0, 0);
+        player1 = new Watergirl(0, 0);
+        player2 = new Fireboy(0, 0);
         levelHandler = new LevelHandler(this);
         player1.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
         player2.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
     }
 
-    private void startGameLoop(){
+    private void startGameLoop() {
         gameThread = new Thread(this);
         gameThread.start();
     }
 
-    public void startNewGame(){
+    public void startNewGame() {
         resetPlayers();
         startTime = System.currentTimeMillis();
         GameState.state = PLAYING;
     }
 
-    public void update(){
+    public void update() {
         switch (GameState.state) {
-            case MENU -> menu.update();
+            case MENU ->
+                menu.update();
             case PLAYING -> {
                 player1.update();
                 player2.update();
                 levelHandler.update();
             }
-            case WON -> won.update();
-            case QUIT -> System.exit(0);
+            case WON ->
+                won.update();
+            case QUIT ->
+                System.exit(0);
         }
     }
 
-    public void render(Graphics g){
+    public void render(Graphics g) {
         switch (GameState.state) {
-            case MENU -> menu.draw(g);
+            case MENU ->
+                menu.draw(g);
             case PLAYING -> {
                 levelHandler.draw(g);
                 player1.render(g);
@@ -98,10 +101,9 @@ public class Game  implements Runnable{
         }
     }
 
-
     @Override
     public void run() {
-        
+
         double timePerFrame = 1000000000.0 / FPS_SET;
         double timePerUpdate = 1000000000.0 / UPS_SET;
 
@@ -114,27 +116,27 @@ public class Game  implements Runnable{
         double deltaU = 0;
         double deltaF = 0;
 
-        while(true){
+        while (true) {
             long currentTime = System.nanoTime();
 
             deltaU += (currentTime - previousTime) / timePerUpdate;
             deltaF += (currentTime - previousTime) / timePerFrame;
-            
+
             previousTime = currentTime;
 
-            if (deltaU >= 1){
+            if (deltaU >= 1) {
                 update();
                 updates++;
                 deltaU--;
             }
 
-            if (deltaF >= 1){
+            if (deltaF >= 1) {
                 gamePanel.repaint();
                 frames++;
                 deltaF--;
             }
 
-            if (System.currentTimeMillis() - lastCheck >= 1000){
+            if (System.currentTimeMillis() - lastCheck >= 1000) {
                 lastCheck = System.currentTimeMillis();
                 System.out.println("FPS: " + frames + " | UPS: " + updates);
                 frames = 0;
@@ -144,20 +146,20 @@ public class Game  implements Runnable{
 
     }
 
-    public void windowFocusLost(){
+    public void windowFocusLost() {
         player1.reserDir();
         player2.reserDir();
     }
 
-    public ScoreHandler getScoreHandler(){
+    public ScoreHandler getScoreHandler() {
         return scoreHandler;
     }
 
-    public long getStartTime(){
+    public long getStartTime() {
         return startTime;
     }
 
-    public Won getWon(){
+    public Won getWon() {
         return won;
     }
 
@@ -170,11 +172,11 @@ public class Game  implements Runnable{
         player2.reset();
     }
 
-    public Player getPlayer1(){
+    public Player getPlayer1() {
         return player1;
     }
 
-    public Player getPlayer2(){
+    public Player getPlayer2() {
         return player2;
     }
 }
