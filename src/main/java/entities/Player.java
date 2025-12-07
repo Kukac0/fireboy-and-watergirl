@@ -22,7 +22,7 @@ public class Player {
     protected int width, height;
     private int flipX = 0;      //for flipping the sprite
     private int flipW = 1;
-    private int xOffset = 2 * (int) SCALE;
+    private int xOffset = 12 * (int) SCALE;
     private static final int Y_OFFSET = 2 * (int) SCALE;
     private static final int CHARACTER_WIDTH = 10;
     private static final int CHARACTER_HEIGHT = 22;
@@ -33,7 +33,7 @@ public class Player {
     protected int playerAction = IDLE;
     protected boolean moving = false;
     protected boolean left, right, jump;
-    protected float playerSpeed = 2.0f;
+    protected float playerSpeed = 1.5f;
     protected int[][] lvlData;
 
     //Jump / Gravity
@@ -151,14 +151,12 @@ public class Player {
             xSpeed += playerSpeed;
             flipW = 1;
             flipX = 0;
-            xOffset = 2 * (int) SCALE;
         }
 
         if (!right && left) {
             xSpeed -= playerSpeed;
             flipW = -1;
-            flipX = TRUE_CHARACTER_WIDTH;
-            xOffset = -2 * (int) SCALE;
+            flipX = (int) (TILES_SIZE * CHARACTER_SCALE);
         }
 
         if (inAir) {
@@ -167,8 +165,10 @@ public class Player {
             updateXPos(xSpeed);
         }
 
-        int tileX = (hitbox.x + hitbox.width / 2) / TILES_SIZE;
-        int tileY = (hitbox.y + hitbox.height - 1) / TILES_SIZE;
+        checkSlopeCollision();
+
+        int tileY = (hitbox.y + hitbox.height) / TILES_SIZE;
+        int tileX = (hitbox.x) / TILES_SIZE;
 
         if (tileY < lvlData.length && tileX < lvlData[0].length && tileY >= 0 && tileX >= 0) {
             int tileId = lvlData[tileY][tileX];
@@ -180,7 +180,7 @@ public class Player {
     }
 
     private void movingInAir(float xSpeed) {
-        if (CanMoveHere(x + xOffset, y + Y_OFFSET + airSpeed, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
+        if (CanMoveHere(x + xOffset, y + Y_OFFSET + airSpeed, hitbox.width, hitbox.height, lvlData)) {
             y += airSpeed;
             airSpeed += gravity;
             updateXPos(xSpeed);
@@ -196,9 +196,7 @@ public class Player {
     }
 
     protected void tileInteractions(int tileId, int tileX, int tileY) {
-        if (utils.HelpMethods.IsSlope(tileId)) {
-            slopeInteractions(tileId, tileX, tileY);
-        }
+        //empty for now
     }
 
     private void slopeInteractions(int tileId, int tileX, int tileY) {
@@ -220,6 +218,32 @@ public class Player {
             airSpeed = 0;
             inAir = false;
         }
+    }
+
+    private void checkSlopeCollision() {
+        int tileY = (hitbox.y + hitbox.height - 1) / TILES_SIZE;
+        int centerX = (hitbox.x + hitbox.width / 2) / TILES_SIZE;
+        int leftX = hitbox.x / TILES_SIZE;
+        int rightX = (hitbox.x + hitbox.width) / TILES_SIZE;
+
+        int leftId = getTileId(leftX, tileY);
+        int rightId = getTileId(rightX, tileY);
+        int centerId = getTileId(centerX, tileY);
+
+        if (utils.HelpMethods.IsSlope(rightId)) {
+            slopeInteractions(rightId, rightX, tileY);
+        } else if (utils.HelpMethods.IsSlope(leftId)) {
+            slopeInteractions(leftId, leftX, tileY);
+        } else if (utils.HelpMethods.IsSlope(centerId)) {
+            slopeInteractions(centerId, centerX, tileY);
+        }
+    }
+
+    private int getTileId(int tileX, int tileY) {
+        if (tileX >= 0 && tileX < lvlData[0].length && tileY >= 0 && tileY < lvlData.length) {
+            return lvlData[tileY][tileX];
+        }
+        return -1;
     }
 
     private void jump() {
@@ -246,7 +270,13 @@ public class Player {
         if (CanMoveHere(x + xOffset + xSpeed, y + Y_OFFSET, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
             x += xSpeed;
         } else {
-            hitbox.x = (int) (x + xOffset);
+            float stepUp = 2.0f;
+            if (CanMoveHere(x + xOffset + xSpeed, y + Y_OFFSET - stepUp, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
+                y -= stepUp;
+                x += xSpeed;
+            } else {
+                hitbox.x = (int) (x + xOffset);
+            }
         }
     }
 
