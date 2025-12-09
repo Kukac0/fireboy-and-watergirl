@@ -20,8 +20,8 @@ public class Game implements Runnable {
     private GameWindow gameWindow;
     private GamePanel gamePanel;
     private Thread gameThread;
-    private final int FPS_SET = 120;
-    private final int UPS_SET = 200;
+    private static final int FPS_SET = 120;
+    private static final int UPS_SET = 200;
 
     private Player player1, player2;
     private LevelHandler levelHandler;
@@ -30,14 +30,14 @@ public class Game implements Runnable {
     private long startTime;
     private ScoreHandler scoreHandler;
 
-    public final static int TILES_DEFAULT_SIZE = 24;
-    public final static float SCALE = 1.0f;
-    public final static float CHARACTER_SCALE = 2.0f;
-    public final static int TILES_IN_WIDTH = 39;
-    public final static int TILES_IN_HEIGHT = 29;
-    public final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
-    public final static int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
-    public final static int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
+    public static final int TILES_DEFAULT_SIZE = 24;
+    public static final float SCALE = 1.0f;
+    public static final float CHARACTER_SCALE = 2.0f;
+    public static final int TILES_IN_WIDTH = 39;
+    public static final int TILES_IN_HEIGHT = 29;
+    public static final int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
+    public static final int GAME_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
+    public static final int GAME_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 
     public Game() {
         initClasses();
@@ -98,6 +98,8 @@ public class Game implements Runnable {
             case WON -> {
                 won.draw(g);
             }
+            case QUIT -> {
+            }
         }
     }
 
@@ -149,6 +151,10 @@ public class Game implements Runnable {
     public void windowFocusLost() {
         player1.reserDir();
         player2.reserDir();
+    }
+
+    public LevelHandler getLevelHandler() {
+        return levelHandler;
     }
 
     public ScoreHandler getScoreHandler() {

@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ScoreHandler {
-    private ArrayList<Score> scores;
+
+    private List<Score> scores;
     private static final String FILE_NAME = "scores.dat";
 
     public void addScore(Score score) {
