@@ -9,6 +9,8 @@ import objects.Door;
 public class Level {
 
     private int[][] lvlData;
+    private int[][] greenData;
+    private int[][] blueData;
     private List<Button> buttons = new ArrayList<>();
     private List<Door> doors = new ArrayList<>();
 
@@ -27,6 +29,14 @@ public class Level {
 
     public int[][] getLvlData() {
         return lvlData;
+    }
+
+    public int[][] getGreen() {
+        return greenData;
+    }
+
+    public int[][] getBlue() {
+        return blueData;
     }
 
 }

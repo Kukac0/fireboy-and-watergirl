@@ -13,6 +13,7 @@ import gamestates.Menu;
 import gamestates.Won;
 import levels.Level;
 import levels.LevelHandler;
+import objects.ObjectHandler;
 import utils.ScoreHandler;
 
 public class Game implements Runnable {
@@ -29,6 +30,7 @@ public class Game implements Runnable {
     private Menu menu;
     private long startTime;
     private ScoreHandler scoreHandler;
+    private ObjectHandler objectHandler;
 
     public static final int TILES_DEFAULT_SIZE = 24;
     public static final float SCALE = 1.0f;
@@ -55,6 +57,7 @@ public class Game implements Runnable {
         player1 = new Watergirl(0, 0);
         player2 = new Fireboy(0, 0);
         levelHandler = new LevelHandler(this);
+        objectHandler = new ObjectHandler(this);
         player1.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
         player2.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
     }
@@ -78,6 +81,7 @@ public class Game implements Runnable {
                 player1.update();
                 player2.update();
                 levelHandler.update();
+                objectHandler.update();
             }
             case WON ->
                 won.update();
@@ -94,6 +98,7 @@ public class Game implements Runnable {
                 levelHandler.draw(g);
                 player1.render(g);
                 player2.render(g);
+                objectHandler.draw(g);
             }
             case WON -> {
                 won.draw(g);
