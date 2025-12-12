@@ -26,10 +26,10 @@ public class ObjectHandler {
         this.lifts = new ArrayList<>();
         this.exits = new ArrayList<>();
         this.levers = new ArrayList<>();
+        loadObjects();
     }
 
     public void update() {
-        loadObjects();
         for (Button b : buttons) {
             boolean player1Touch = game.getPlayer1().getHitbox().intersects(b.getHitbox());
             boolean player2Touch = game.getPlayer2().getHitbox().intersects(b.getHitbox());
@@ -104,10 +104,10 @@ public class ObjectHandler {
         Level level = game.getLevelHandler().getCurrentLevel();
 
         getButtons(level);
-        this.doors = getDoors(level);
-        this.boxes = getBoxes(level);
-        this.lifts = getLifts(level);
-        this.exits = getExits(level);
+        //getDoors(level);
+        //getBoxes(level);
+        //getLifts(level);
+        //getExits(level);
     }
 
     private void getButtons(Level level) {
@@ -115,7 +115,7 @@ public class ObjectHandler {
             for (int j = 0; j < level.getLvlData()[0].length; j++) {
                 int id = level.getGreen()[i][j];
                 if (id == 0) {
-                    Button button = new Button(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, level.getBlue()[i][j]);
+                    Button button = new Button(i * TILES_SIZE, j * TILES_SIZE, TILES_SIZE, TILES_SIZE, level.getBlue()[i][j]);
                     this.buttons.add(button);
                 }
             }

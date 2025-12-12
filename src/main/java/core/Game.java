@@ -70,6 +70,7 @@ public class Game implements Runnable {
     public void startNewGame() {
         resetPlayers();
         startTime = System.currentTimeMillis();
+
         GameState.state = PLAYING;
     }
 

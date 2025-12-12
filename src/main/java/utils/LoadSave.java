@@ -15,6 +15,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import core.Game;
+import levels.Level;
 
 public class LoadSave {
 
@@ -42,21 +43,31 @@ public class LoadSave {
         return img;
     }
 
-    public static int[][] GetLevelData() {
-        int[][] lvlData = new int[Game.TILES_IN_HEIGHT][Game.TILES_IN_WIDTH];
+    public static Level GetLevelData() {
         BufferedImage img = GetSpriteAtlas(LEVEL1_DATA);
+        int h = Game.TILES_IN_HEIGHT;
+        int w = Game.TILES_IN_WIDTH;
+
+        int[][] lvlData = new int[h][w];
+        int[][] greenData = new int[h][w];
+        int[][] blueData = new int[h][w];
 
         for (int j = 0; j < img.getHeight(); j++) {
             for (int i = 0; i < img.getWidth(); i++) {
                 Color color = new Color(img.getRGB(i, j));
-                int value = color.getRed();
-                if (value >= 42) {
-                    value = 6;
+                int r = color.getRed();
+                int g = color.getGreen();
+                int b = color.getBlue();
+
+                if (r >= 42) {
+                    r = 6;
                 }
-                lvlData[j][i] = value;
+                lvlData[j][i] = r;
+                greenData[j][i] = g;
+                blueData[j][i] = b;
             }
         }
-        return lvlData;
+        return new Level(lvlData, greenData, blueData);
     }
 
     public static void SaveScores(String filename, List<Score> scores) {

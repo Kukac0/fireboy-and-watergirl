@@ -19,8 +19,10 @@ public class Level {
     public final int p2StartX = 250;
     public final int p2StartY = 200;
 
-    public Level(int[][] lvlData) {
+    public Level(int[][] lvlData, int[][] greenData, int[][] blueData) {
         this.lvlData = lvlData;
+        this.greenData = greenData;
+        this.blueData = blueData;
     }
 
     public int getSpriteIndex(int x, int y) {
