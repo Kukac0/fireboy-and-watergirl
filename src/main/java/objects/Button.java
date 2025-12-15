@@ -17,6 +17,8 @@ public class Button {
     public Button(int x, int y, int width, int height, int id) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
         this.isPressed = false;
         this.id = id;
         this.hitbox = new Rectangle(x, y, width, height);
@@ -28,10 +30,10 @@ public class Button {
 
     public void draw(Graphics g) {
         if (isPressed) {
-            g.setColor(new Color(100, 100, 100)); // Szürke, ha lenyomva
-            g.fillRect(x, y + height / 2, width, height / 2); // Kisebb téglalap
+            g.setColor(new Color(100, 100, 100));
+            g.fillRect(x, y + height / 2, width, height / 2);
         } else {
-            g.setColor(Color.RED); // Piros, ha nincs lenyomva
+            g.setColor(Color.RED);
             g.fillRect(x, y, width, height);
         }
     }

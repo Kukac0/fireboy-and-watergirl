@@ -30,10 +30,9 @@ public class Door {
 
     public void draw(Graphics g) {
         if (!isOpen) {
-            g.setColor(new Color(84, 46, 14)); // Barna szín (zárt)
+            g.setColor(new Color(84, 46, 14));
             g.fillRect(x, y, width, height);
         } else {
-            // Ha nyitva van, csak a keretet rajzoljuk, vagy semmit
             g.setColor(new Color(60, 30, 10));
             g.drawRect(x, y, width, height);
         }

@@ -12,79 +12,56 @@ public class Lift {
     private int height;
     private int id;
     private Rectangle hitbox;
-    private int minX;
-    private int maxX;
-    private int minY;
-    private int maxY;
-    private float speedX;
-    private float speedY;
+    private int startY;
+    private int targetY;
+    private float speed;
     private boolean isActive;
-    private boolean vertical;
 
-    public Lift(int x, int y, int width, int height, int targetX, int targetY, float speed, int id) {
+    public Lift(int x, int y, int width, int height, int targetY, float speed, int id) {
         this.x = x;
         this.y = y;
+        this.startY = y;
+        this.targetY = targetY;
         this.width = width;
         this.height = height;
         this.hitbox = new Rectangle(x, y, width, height);
         this.id = id;
+        this.speed = speed;
         this.isActive = false;
-
-        this.minX = Math.min(x, targetX);
-        this.maxX = Math.max(x, targetX);
-        this.minY = Math.min(y, targetY);
-        this.maxY = Math.max(y, targetY);
-
-        if (x != targetX) {
-            this.speedX = speed;
-        }
-        if (y != targetY) {
-            this.speedY = speed;
-        }
-
-        if (x != targetX) {
-            vertical = false;
-        } else {
-            vertical = true;
-        }
     }
 
     public void update() {
-        float tempSpeed = Math.max(speedX, speedY);
+        float destY = isActive ? targetY : startY;
 
-        if (x < minX || x > maxX) {
-            tempSpeed = 0;
-        }
-        if (y < minY || y > maxY) {
-            tempSpeed = 0;
-            y = (int) y;
-        }
-
-        if (isActive && vertical) {
-            x += 0;
-            y += tempSpeed;
-        } else if (isActive && !vertical) {
-            x += tempSpeed;
-            y += 0;
-        } else if (!isActive && vertical) {
-            x += 0;
-            y -= tempSpeed;
-        } else if (!isActive && !vertical) {
-            x -= tempSpeed;
-            y += 0;
+        if (y < destY) {
+            y += speed;
+            if (y > destY) {
+                y = destY;
+            }
+        } else if (y > destY) {
+            y -= speed;
+            if (y < destY) {
+                y = destY;
+            }
         }
 
-        hitbox.x = (int) x;
         hitbox.y = (int) y;
     }
 
     public void draw(Graphics g) {
         g.setColor(Color.LIGHT_GRAY);
         g.fillRect((int) x, (int) y, width, height);
+
+        g.setColor(Color.BLACK);
+        g.drawRect((int) x, (int) y, width, height);
     }
 
     public int getId() {
         return id;
+    }
+
+    public int getTarget() {
+        return targetY;
     }
 
     public Rectangle getHitbox() {

@@ -297,6 +297,23 @@ public class Player {
         right = false;
     }
 
+    public void setInAir(boolean inAir) {
+        this.inAir = inAir;
+    }
+
+    public void setAirSpeed(float airSpeed) {
+        this.airSpeed = airSpeed;
+    }
+
+    public float getAirSpeed() {
+        return airSpeed;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+        updateHitbox();
+    }
+
     public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
