@@ -16,6 +16,11 @@ import static utils.Constants.PlayerConstants.getSpriteAmount;
 import static utils.HelpMethods.CanMoveHere;
 import utils.LoadSave;
 
+/**
+ * Abstract base class for player characters in the game. Handles player
+ * movement, physics, collision detection, and animation. Subclasses (Fireboy,
+ * Watergirl) implement character-specific behavior.
+ */
 public class Player {
 
     protected BufferedImage[][] animations;
@@ -44,6 +49,13 @@ public class Player {
     protected float fallSpeedAfterCollision = 0.5f * SCALE;
     protected boolean inAir = false;
 
+    /**
+     * Constructs a new Player at the specified position. Initializes the
+     * player's hitbox based on character dimensions.
+     *
+     * @param x the initial x-coordinate
+     * @param y the initial y-coordinate
+     */
     public Player(float x, float y) {
         this.x = x;
         this.y = y;
@@ -52,16 +64,26 @@ public class Player {
         initHitbox();
     }
 
+    /**
+     * Resets the player's state to default values. Clears air state, resets
+     * vertical speed, and stops all movement directions.
+     */
     public void reset() {
         inAir = false;
         airSpeed = 0;
         reserDir();
     }
 
+    /**
+     * Initializes the player's hitbox with proper offsets.
+     */
     private void initHitbox() {
         hitbox = new Rectangle((int) x + xOffset, (int) y + Y_OFFSET, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT);
     }
 
+    /**
+     * Updates the hitbox position to match the player's current position.
+     */
     private void updateHitbox() {
         hitbox.x = (int) x + xOffset;
         hitbox.y = (int) y + Y_OFFSET;
@@ -71,6 +93,11 @@ public class Player {
         return hitbox;
     }
 
+    /**
+     * Updates the player's state including position, hitbox, and animation.
+     * This method is called every game tick to handle physics and player
+     * movement.
+     */
     public void update() {
         updatePos();
         updateHitbox();
@@ -78,6 +105,12 @@ public class Player {
         setAnimation();
     }
 
+    /**
+     * Renders the player character on the screen. Draws the current animation
+     * frame with proper scaling and horizontal flipping.
+     *
+     * @param g the Graphics context to draw on
+     */
     public void render(Graphics g) {
         g.drawImage(animations[playerAction][aniIndex],
                 (int) (x + flipX),
@@ -88,6 +121,11 @@ public class Player {
 
     }
 
+    /**
+     * Sets the appropriate animation based on the player's current state.
+     * Determines whether the player should be idle, running, jumping, or
+     * falling.
+     */
     private void setAnimation() {
         int startAni = playerAction;
 
@@ -110,11 +148,18 @@ public class Player {
         }
     }
 
+    /**
+     * Resets animation tick and index to start a new animation cycle.
+     */
     private void resetAniTick() {
         aniTick = 0;
         aniIndex = 0;
     }
 
+    /**
+     * Updates the animation frame based on animation speed. Cycles through
+     * animation frames to create smooth character animations.
+     */
     private void updateAnimationTick() {
         aniTick++;
         if (aniTick >= aniSpeed) {
@@ -126,10 +171,21 @@ public class Player {
         }
     }
 
+    /**
+     * Loads level collision data for the player. This 2D array is used for
+     * collision detection and movement validation.
+     *
+     * @param lvlData 2D array representing the level tiles and their properties
+     */
     public void loadLvlData(int[][] lvlData) {
         this.lvlData = lvlData;
     }
 
+    /**
+     * Updates the player's position based on input and physics. Handles
+     * horizontal movement, jumping, gravity, slope collision, and tile
+     * interactions. This is the core movement logic method.
+     */
     private void updatePos() {
         moving = false;
 
@@ -173,13 +229,19 @@ public class Player {
 
         if (tileY < lvlData.length && tileX < lvlData[0].length && tileY >= 0 && tileX >= 0) {
             int tileId = lvlData[tileY][tileX];
-            tileInteractions(tileId, tileX, tileY);
         }
         if (left || right) {
             moving = true;
         }
     }
 
+    /**
+     * Handles player movement while in the air. Applies gravity and checks for
+     * collisions during aerial movement. Landing is detected and handled when
+     * the player hits a surface.
+     *
+     * @param xSpeed the horizontal speed to apply during air movement
+     */
     private void movingInAir(float xSpeed) {
         if (CanMoveHere(x + xOffset, y + Y_OFFSET + airSpeed, hitbox.width, hitbox.height, lvlData)) {
             y += airSpeed;
@@ -196,10 +258,15 @@ public class Player {
         }
     }
 
-    protected void tileInteractions(int tileId, int tileX, int tileY) {
-        //empty for now
-    }
-
+    /**
+     * Handles player interactions with sloped tiles. Adjusts player position to
+     * stay on slopes and prevents falling through them. Supports both ascending
+     * and descending slope tiles.
+     *
+     * @param tileId the ID of the slope tile
+     * @param tileX the x-coordinate of the tile
+     * @param tileY the y-coordinate of the tile
+     */
     private void slopeInteractions(int tileId, int tileX, int tileY) {
         float slopeY = 0;
         float xDiff = 0;
@@ -221,6 +288,10 @@ public class Player {
         }
     }
 
+    /**
+     * Checks for slope collisions at the player's current position. Tests
+     * multiple points (left, right, center) to ensure proper slope detection.
+     */
     private void checkSlopeCollision() {
         int tileY = (hitbox.y + hitbox.height - 1) / TILES_SIZE;
         int centerX = (hitbox.x + hitbox.width / 2) / TILES_SIZE;
@@ -240,6 +311,14 @@ public class Player {
         }
     }
 
+    /**
+     * Gets the tile ID at the specified grid coordinates. Returns -1 if the
+     * coordinates are out of bounds.
+     *
+     * @param tileX the x-coordinate in the tile grid
+     * @param tileY the y-coordinate in the tile grid
+     * @return the tile ID, or -1 if out of bounds
+     */
     private int getTileId(int tileX, int tileY) {
         if (tileX >= 0 && tileX < lvlData[0].length && tileY >= 0 && tileY < lvlData.length) {
             return lvlData[tileY][tileX];
@@ -247,6 +326,10 @@ public class Player {
         return -1;
     }
 
+    /**
+     * Initiates a jump if the player is on the ground. Sets the player to air
+     * state and applies upward velocity.
+     */
     private void jump() {
         if (inAir) {
             return;
@@ -255,11 +338,21 @@ public class Player {
         airSpeed = jumpSpeed;
     }
 
+    /**
+     * Resets the player's air state after landing. Clears vertical velocity and
+     * air flag.
+     */
     private void resetInAir() {
         inAir = false;
         airSpeed = 0;
     }
 
+    /**
+     * Checks if the player is standing on solid ground. Tests both left and
+     * right foot positions for ground contact.
+     *
+     * @return true if either foot is on solid ground, false otherwise
+     */
     private boolean isPlayerOnFloor() {
         boolean leftFootOnGround = utils.HelpMethods.IsSolid(x + xOffset, y + Y_OFFSET + TRUE_CHARACTER_HEIGHT + 1, lvlData);
         boolean rightFootOnGround = utils.HelpMethods.IsSolid(x + xOffset + TRUE_CHARACTER_WIDTH, y + Y_OFFSET + TRUE_CHARACTER_HEIGHT + 1, lvlData);
@@ -267,6 +360,13 @@ public class Player {
         return leftFootOnGround || rightFootOnGround;
     }
 
+    /**
+     * Updates the player's horizontal position with collision detection.
+     * Includes step-up logic to automatically climb small obstacles (2 pixels).
+     * Prevents movement through walls and obstacles.
+     *
+     * @param xSpeed the horizontal speed to apply
+     */
     private void updateXPos(float xSpeed) {
         if (CanMoveHere(x + xOffset + xSpeed, y + Y_OFFSET, TRUE_CHARACTER_WIDTH, TRUE_CHARACTER_HEIGHT - 2, lvlData)) {
             x += xSpeed;
@@ -281,6 +381,13 @@ public class Player {
         }
     }
 
+    /**
+     * Loads animation sprites from the specified file. Splits the sprite sheet
+     * into individual animation frames.
+     *
+     * @param filename the name of the sprite sheet file (e.g.,
+     * "fireboy_sprites.png")
+     */
     protected void loadAnimations(String filename) {
         BufferedImage img = LoadSave.GetSpriteAtlas(filename);
         animations = new BufferedImage[4][4];
@@ -292,10 +399,17 @@ public class Player {
         }
     }
 
+    /**
+     * Kills the player and transitions the game to the LOST state.
+     */
     public void die() {
         GameState.state = GameState.LOST;
     }
 
+    /**
+     * Resets all directional input flags to false. Used when the game loses
+     * focus or when resetting player state to prevent "stuck key" issues.
+     */
     public void reserDir() {
         jump = false;
         left = false;

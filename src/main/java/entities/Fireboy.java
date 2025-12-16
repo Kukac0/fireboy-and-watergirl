@@ -7,10 +7,4 @@ public class Fireboy extends Player {
         loadAnimations("fireboy_sprites.png");
     }
 
-    @Override
-    protected void tileInteractions(int tileId, int tileX, int tileY) {
-        super.tileInteractions(tileId, tileX, tileY);
-        // future interactions
-    }
-
 }

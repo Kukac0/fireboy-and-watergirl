@@ -12,6 +12,11 @@ import gamestates.GameState;
 import levels.Level;
 import static utils.HelpMethods.CanMoveHere;
 
+/**
+ * Manages all interactive objects in the game. Handles creation, updating,
+ * collision detection, and rendering of game objects including buttons, doors,
+ * boxes, lifts, exits, levers, fluids, and gems.
+ */
 public class ObjectHandler {
 
     private Game game;
@@ -24,6 +29,12 @@ public class ObjectHandler {
     private List<Fluid> fluids;
     private List<Gem> gems;
 
+    /**
+     * Constructs a new ObjectHandler for the specified game. Initializes all
+     * object lists and loads objects from the current level.
+     *
+     * @param game the game instance
+     */
     public ObjectHandler(Game game) {
         this.game = game;
         initLists();
@@ -41,11 +52,22 @@ public class ObjectHandler {
         this.gems = new ArrayList<>();
     }
 
+    /**
+     * Loads objects from a new level. Clears existing objects and populates
+     * lists with objects from the specified level.
+     *
+     * @param newLevel the level to load objects from
+     */
     public void loadNewLevel(Level newLevel) {
         initLists();
         loadObjects(newLevel);
     }
 
+    /**
+     * Updates all game objects and checks for interactions. Handles collision
+     * detection between players and objects, updates object states, and checks
+     * win/lose conditions.
+     */
     public void update() {
         Player player1 = game.getPlayer1();
         Player player2 = game.getPlayer2();
@@ -137,6 +159,11 @@ public class ObjectHandler {
 
     }
 
+    /**
+     * Renders all game objects on the screen.
+     *
+     * @param g the Graphics context to draw on
+     */
     public void draw(Graphics g) {
         for (Button b : buttons) {
             b.draw(g);
@@ -164,6 +191,10 @@ public class ObjectHandler {
         }
     }
 
+    /**
+     * Resets all objects to their initial state. Called when starting a new
+     * game or restarting a level.
+     */
     public void reset() {
         for (Button b : buttons) {
             b.reset();
@@ -185,6 +216,12 @@ public class ObjectHandler {
         }
     }
 
+    /**
+     * Activates objects with the specified ID. Opens doors and activates lifts
+     * that match the given ID.
+     *
+     * @param id the ID of the objects to activate
+     */
     private void objectActivated(int id) {
         for (Door door : doors) {
             if (door.getId() == id) {
@@ -198,6 +235,12 @@ public class ObjectHandler {
         }
     }
 
+    /**
+     * Checks and handles collisions between a player and lifts. Resolves
+     * vertical and horizontal collisions, allowing players to ride lifts.
+     *
+     * @param player the player to check collisions for
+     */
     public void checkLiftHit(Player player) {
         Rectangle playerHitbox = player.getHitbox();
         for (Lift lift : lifts) {
@@ -233,6 +276,12 @@ public class ObjectHandler {
         }
     }
 
+    /**
+     * Checks and handles collisions between a player and boxes. Allows players
+     * to push boxes and stand on top of them.
+     *
+     * @param player the player to check collisions for
+     */
     public void checkBoxHit(Player player) {
         int[][] lvlData = game.getLevelHandler().getCurrentLevel().getLvlData();
 
@@ -268,6 +317,12 @@ public class ObjectHandler {
         }
     }
 
+    /**
+     * Checks and handles collisions between a player and closed doors. Prevents
+     * players from passing through closed doors.
+     *
+     * @param player the player to check collisions for
+     */
     public void checkDoorHit(Player player) {
         for (Door door : doors) {
             if (!door.isOpen() && player.getHitbox().intersects(door.getHitbox())) {
@@ -292,6 +347,12 @@ public class ObjectHandler {
         }
     }
 
+    /**
+     * Loads all objects from the specified level. Parses level data to create
+     * buttons, doors, boxes, lifts, exits, levers, fluids, and gems.
+     *
+     * @param level the level to load objects from
+     */
     public void loadObjects(Level level) {
         getButtons(level);
         getDoors(level);
