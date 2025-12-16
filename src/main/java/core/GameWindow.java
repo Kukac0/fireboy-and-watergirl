@@ -41,6 +41,7 @@ public class GameWindow extends JFrame {
     private void createMenuBar(GamePanel gamePanel) {
         JMenuBar menuBar = new JMenuBar();
 
+        //File menu
         JMenu fileMenu = new JMenu("File");
 
         JMenuItem newItem = new JMenuItem("New Game");
@@ -56,6 +57,25 @@ public class GameWindow extends JFrame {
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
 
+        //Levels menu
+        JMenu levelMenu = new JMenu("Levels");
+
+        JMenuItem level1Item = new JMenuItem("Level 1");
+        level1Item.addActionListener(e -> {
+            gamePanel.getGame().loadLevel(1);
+            gamePanel.requestFocus();
+        });
+
+        JMenuItem level2Item = new JMenuItem("Level 2");
+        level2Item.addActionListener(e -> {
+            gamePanel.getGame().loadLevel(2);
+            gamePanel.requestFocus();
+        });
+
+        levelMenu.add(level1Item);
+        levelMenu.add(level2Item);
+
+        //Info menu
         JMenu infoMenu = new JMenu("Info");
         JMenuItem aboutItem = new JMenuItem("About");
         aboutItem.addActionListener(e -> {
@@ -68,6 +88,7 @@ public class GameWindow extends JFrame {
         infoMenu.add(aboutItem);
 
         menuBar.add(fileMenu);
+        menuBar.add(levelMenu);
         menuBar.add(infoMenu);
 
         this.setJMenuBar(menuBar);

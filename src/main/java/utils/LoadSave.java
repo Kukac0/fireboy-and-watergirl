@@ -21,10 +21,7 @@ public class LoadSave {
 
     public static final String PLAYER_ATLAS = "sprites.png";
     public static final String LEVEL_ATLAS = "level_sprites.png";
-    public static final String LEVEL1_DATA = "level1.png";
-
     public static final String LEVEL_BACKGROUND = "background.png";
-
     public static final String SCORES_FILE = "scores.dat";
 
     public static BufferedImage GetSpriteAtlas(String filename) {
@@ -45,8 +42,11 @@ public class LoadSave {
         return img;
     }
 
-    public static Level GetLevelData() {
-        BufferedImage img = GetSpriteAtlas(LEVEL1_DATA);
+    public static Level GetLevelData(int levelIndex) {
+        String filename = "level" + levelIndex + ".png";
+
+        BufferedImage img = GetSpriteAtlas(filename);
+
         int h = Game.TILES_IN_HEIGHT;
         int w = Game.TILES_IN_WIDTH;
 

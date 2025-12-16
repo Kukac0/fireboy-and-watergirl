@@ -73,8 +73,8 @@ public class Game implements Runnable {
     public void startNewGame() {
         resetPlayers();
         objectHandler.reset();
+        levelHandler.reset();
         startTime = System.currentTimeMillis();
-
         GameState.state = PLAYING;
     }
 
@@ -162,6 +162,14 @@ public class Game implements Runnable {
             }
         }
 
+    }
+
+    public void loadLevel(int levelIndex) {
+        levelHandler.setLevel(levelIndex);
+        objectHandler.loadNewLevel(levelHandler.getCurrentLevel());
+        player1.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
+        player2.loadLvlData(levelHandler.getCurrentLevel().getLvlData());
+        startNewGame();
     }
 
     public void windowFocusLost() {

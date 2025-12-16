@@ -10,7 +10,7 @@ public class LevelHandler {
 
     private Game game;
     private BufferedImage[] levelSprite;
-    private Level level1;
+    private Level currentLevel;
     private BufferedImage backgroundImg;
 
     private int currentRedGems = 0;
@@ -20,7 +20,11 @@ public class LevelHandler {
         this.game = game;
         importLevelSprites();
         backgroundImg = LoadSave.GetSpriteAtlas(LoadSave.LEVEL_BACKGROUND);
-        level1 = LoadSave.GetLevelData();
+        setLevel(1);
+    }
+
+    public void setLevel(int index) {
+        currentLevel = LoadSave.GetLevelData(index);
     }
 
     private void importLevelSprites() {
@@ -41,7 +45,7 @@ public class LevelHandler {
     public void draw(Graphics g) {
         for (int j = 0; j < Game.TILES_IN_HEIGHT; j++) {
             for (int i = 0; i < Game.TILES_IN_WIDTH; i++) {
-                int index = level1.getSpriteIndex(i, j);
+                int index = currentLevel.getSpriteIndex(i, j);
                 g.drawImage(levelSprite[index], i * Game.TILES_SIZE, j * Game.TILES_SIZE, Game.TILES_SIZE, Game.TILES_SIZE, null);
             }
         }
@@ -52,7 +56,7 @@ public class LevelHandler {
     }
 
     public Level getCurrentLevel() {
-        return level1;
+        return currentLevel;
     }
 
     public void addGem(int type) {

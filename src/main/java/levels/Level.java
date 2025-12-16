@@ -75,7 +75,7 @@ public class Level {
     }
 
     public int getMaxBlueGems() {
-        return maxRedGems;
+        return maxBlueGems;
     }
 
 }

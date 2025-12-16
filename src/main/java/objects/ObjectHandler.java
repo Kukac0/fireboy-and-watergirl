@@ -26,6 +26,11 @@ public class ObjectHandler {
 
     public ObjectHandler(Game game) {
         this.game = game;
+        initLists();
+        loadObjects(game.getLevelHandler().getCurrentLevel());
+    }
+
+    private void initLists() {
         this.buttons = new ArrayList<>();
         this.doors = new ArrayList<>();
         this.boxes = new ArrayList<>();
@@ -34,7 +39,11 @@ public class ObjectHandler {
         this.levers = new ArrayList<>();
         this.fluids = new ArrayList<>();
         this.gems = new ArrayList<>();
-        loadObjects();
+    }
+
+    public void loadNewLevel(Level newLevel) {
+        initLists();
+        loadObjects(newLevel);
     }
 
     public void update() {
@@ -46,6 +55,9 @@ public class ObjectHandler {
 
         checkBoxHit(player1);
         checkBoxHit(player2);
+
+        checkDoorHit(player1);
+        checkDoorHit(player2);
 
         for (Lift l : lifts) {
             l.setActive(false);
@@ -97,6 +109,9 @@ public class ObjectHandler {
             l.update();
         }
         for (Door d : doors) {
+            if (d.getId() == 1) {
+                d.setOpen(!d.isOpen());
+            }
             d.update();
         }
         for (Fluid f : fluids) {
@@ -111,8 +126,12 @@ public class ObjectHandler {
         for (Gem g : gems) {
             if (g.isActive()) {
                 g.update();
-                g.checkCollect(game.getPlayer1(), 0);
-                g.checkCollect(game.getPlayer2(), 1);
+                if (g.checkCollect(game.getPlayer1(), 0)) {
+                    game.getLevelHandler().addGem(0);
+                }
+                if (g.checkCollect(game.getPlayer2(), 1)) {
+                    game.getLevelHandler().addGem(1);
+                }
             }
         }
 
@@ -162,7 +181,7 @@ public class ObjectHandler {
             l.reset();
         }
         for (Gem g : gems) {
-            g.setActive(false);;
+            g.setActive(true);
         }
     }
 
@@ -249,9 +268,31 @@ public class ObjectHandler {
         }
     }
 
-    public void loadObjects() {
-        Level level = game.getLevelHandler().getCurrentLevel();
+    public void checkDoorHit(Player player) {
+        for (Door door : doors) {
+            if (!door.isOpen() && player.getHitbox().intersects(door.getHitbox())) {
+                Rectangle intersection = player.getHitbox().intersection(door.getHitbox());
+                if (intersection.width > intersection.height) {     // Vertical Collision
+                    if (player.getHitbox().y < door.getHitbox().y) {
+                        player.setInAir(false);
+                        player.setAirSpeed(0);
+                        player.setY(door.getHitbox().y - player.getHitbox().height - 1);
+                    } else {
+                        player.setAirSpeed(0);
+                        player.setY(player.getY() + intersection.height);
+                    }
+                } else {      // Horizontal Collision
+                    if (player.getHitbox().x < door.getHitbox().x) {
+                        player.setX(player.getX() - intersection.width);
+                    } else {
+                        player.setX(player.getX() + intersection.width);
+                    }
+                }
+            }
+        }
+    }
 
+    public void loadObjects(Level level) {
         getButtons(level);
         getDoors(level);
         getBoxes(level);
@@ -281,8 +322,22 @@ public class ObjectHandler {
                 int id = level.getGreen()[i][j];
 
                 if (id == 1) {
-                    Door door = new Door(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, -2 * TILES_SIZE, level.getBlue()[i][j]);
-                    this.doors.add(door);
+                    int blue = level.getBlue()[i][j];
+                    boolean vertical = true;
+                    if (blue >= 100) {
+                        vertical = false;
+                        blue -= 100;
+                    }
+                    int length = blue / 10;
+                    int switchId = blue % 10;
+
+                    if (vertical) {
+                        Door door = new Door(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE - 1, length * TILES_SIZE, switchId);
+                        this.doors.add(door);
+                    } else {
+                        Door door = new Door(j * TILES_SIZE, i * TILES_SIZE, length * TILES_SIZE, TILES_SIZE - 1, switchId);
+                        this.doors.add(door);
+                    }
                 }
             }
         }
@@ -374,13 +429,20 @@ public class ObjectHandler {
             for (int j = 0; j < level.getLvlData()[0].length; j++) {
                 int id = level.getGreen()[i][j];
 
-                if (id == 100) {
-                    int type = level.getBlue()[i][j];
-                    Gem gem = new Gem(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, type);
+                if (id == 150) {
+                    Gem gem = new Gem(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, 0);
+                    gems.add(gem);
+                }
+                if (id == 151) {
+                    Gem gem = new Gem(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, 1);
                     gems.add(gem);
                 }
             }
         }
+    }
+
+    public List<Door> getDoorList() {
+        return this.doors;
     }
 
 }

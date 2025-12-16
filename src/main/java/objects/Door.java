@@ -30,16 +30,23 @@ public class Door {
 
     public void draw(Graphics g) {
         if (!isOpen) {
-            g.setColor(new Color(84, 46, 14));
-            g.fillRect(x, y, width, height);
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRect((int) x, (int) y, width, height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect((int) x, (int) y, width, height);
         } else {
-            g.setColor(new Color(60, 30, 10));
-            g.drawRect(x, y, width, height);
+            g.setColor(new Color(50, 50, 20));
+            g.fillRect((int) x, (int) y, width, height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect((int) x, (int) y, width, height);
         }
     }
 
     public void reset() {
         isOpen = false;
+
     }
 
     public boolean isOpen() {
