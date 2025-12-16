@@ -8,6 +8,9 @@ public class Level {
     private int[][] greenData;
     private int[][] blueData;
 
+    private int maxBlueGems = 0;
+    private int maxRedGems = 0;
+
     public int p1StartX;
     public int p1StartY;
     public int p2StartX;
@@ -17,10 +20,25 @@ public class Level {
         this.lvlData = lvlData;
         this.greenData = greenData;
         this.blueData = blueData;
+        getMaxGems();
     }
 
     public int getSpriteIndex(int x, int y) {
         return lvlData[y][x];
+    }
+
+    private void getMaxGems() {
+        for (int i = 0; i < getLvlData().length; i++) {
+            for (int j = 0; j < getLvlData()[0].length; j++) {
+                int id = getGreen()[i][j];
+
+                if (id == 150) {
+                    maxBlueGems++;
+                } else if (id == 151) {
+                    maxRedGems++;
+                }
+            }
+        }
     }
 
     public void setStartPos() {
@@ -50,6 +68,14 @@ public class Level {
 
     public int[][] getBlue() {
         return blueData;
+    }
+
+    public int getMaxRedGems() {
+        return maxRedGems;
+    }
+
+    public int getMaxBlueGems() {
+        return maxRedGems;
     }
 
 }

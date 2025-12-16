@@ -22,6 +22,7 @@ public class ObjectHandler {
     private List<Exit> exits;
     private List<Lever> levers;
     private List<Fluid> fluids;
+    private List<Gem> gems;
 
     public ObjectHandler(Game game) {
         this.game = game;
@@ -32,6 +33,7 @@ public class ObjectHandler {
         this.exits = new ArrayList<>();
         this.levers = new ArrayList<>();
         this.fluids = new ArrayList<>();
+        this.gems = new ArrayList<>();
         loadObjects();
     }
 
@@ -106,6 +108,14 @@ public class ObjectHandler {
             }
             f.update();
         }
+        for (Gem g : gems) {
+            if (g.isActive()) {
+                g.update();
+                g.checkCollect(game.getPlayer1(), 0);
+                g.checkCollect(game.getPlayer2(), 1);
+            }
+        }
+
     }
 
     public void draw(Graphics g) {
@@ -130,6 +140,9 @@ public class ObjectHandler {
         for (Fluid f : fluids) {
             f.draw(g);
         }
+        for (Gem gem : gems) {
+            gem.draw(g);
+        }
     }
 
     public void reset() {
@@ -147,6 +160,9 @@ public class ObjectHandler {
         }
         for (Lever l : levers) {
             l.reset();
+        }
+        for (Gem g : gems) {
+            g.setActive(false);;
         }
     }
 
@@ -243,6 +259,7 @@ public class ObjectHandler {
         getExits(level);
         getLevers(level);
         getFluids(level);
+        getGems(level);
     }
 
     private void getButtons(Level level) {
@@ -345,8 +362,22 @@ public class ObjectHandler {
 
                 if (id == 200) {
                     int type = level.getBlue()[i][j];
-                    Fluid f = new Fluid(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, type);
-                    fluids.add(f);
+                    Fluid fluid = new Fluid(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, type);
+                    fluids.add(fluid);
+                }
+            }
+        }
+    }
+
+    private void getGems(Level level) {
+        for (int i = 0; i < level.getLvlData().length; i++) {
+            for (int j = 0; j < level.getLvlData()[0].length; j++) {
+                int id = level.getGreen()[i][j];
+
+                if (id == 100) {
+                    int type = level.getBlue()[i][j];
+                    Gem gem = new Gem(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, type);
+                    gems.add(gem);
                 }
             }
         }

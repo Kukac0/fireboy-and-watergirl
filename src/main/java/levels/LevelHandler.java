@@ -13,6 +13,9 @@ public class LevelHandler {
     private Level level1;
     private BufferedImage backgroundImg;
 
+    private int currentRedGems = 0;
+    private int currentBlueGems = 0;
+
     public LevelHandler(Game game) {
         this.game = game;
         importLevelSprites();
@@ -50,6 +53,27 @@ public class LevelHandler {
 
     public Level getCurrentLevel() {
         return level1;
+    }
+
+    public void addGem(int type) {
+        if (type == 0) {
+            currentBlueGems++;
+        } else {
+            currentRedGems++;
+        }
+    }
+
+    public void reset() {
+        currentRedGems = 0;
+        currentBlueGems = 0;
+    }
+
+    public int getCurrentRedGems() {
+        return currentRedGems;
+    }
+
+    public int getCurrentBlueGems() {
+        return currentBlueGems;
     }
 
 }

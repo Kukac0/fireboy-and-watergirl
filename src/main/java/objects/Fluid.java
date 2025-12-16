@@ -30,7 +30,6 @@ public class Fluid {
     }
 
     public void draw(Graphics g) {
-        // Set Color based on type
         if (type == 0) {
             g.setColor(new Color(30, 150, 255)); // Water 
         } else if (type == 1) {
