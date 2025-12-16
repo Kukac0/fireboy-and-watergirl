@@ -34,6 +34,10 @@ public class HelpMethods {
             return false;
         }
 
+        if (value == 36) {
+            return (y % TILES_SIZE) >= (TILES_SIZE / 2);
+        }
+
         return (value >= 42 || value < 0 || value != 6);
     }
 

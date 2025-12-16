@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import static core.Game.CHARACTER_SCALE;
 import static core.Game.SCALE;
 import static core.Game.TILES_SIZE;
+import gamestates.GameState;
 import static utils.Constants.PlayerConstants.FALLING;
 import static utils.Constants.PlayerConstants.IDLE;
 import static utils.Constants.PlayerConstants.JUMPING;
@@ -289,6 +290,10 @@ public class Player {
                 animations[j][i] = img.getSubimage(i * 24, j * 24, 24, 24);
             }
         }
+    }
+
+    public void die() {
+        GameState.state = GameState.LOST;
     }
 
     public void reserDir() {

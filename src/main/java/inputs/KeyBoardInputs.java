@@ -103,6 +103,14 @@ public class KeyBoardInputs implements KeyListener {
                 }
 
             }
+
+            case LOST -> {
+                if (e.getKeyCode() == KeyEvent.VK_R) {
+                    gamePanel.getGame().startNewGame();
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    GameState.state = GameState.MENU;
+                }
+            }
         }
     }
 

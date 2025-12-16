@@ -21,6 +21,7 @@ public class ObjectHandler {
     private List<Lift> lifts;
     private List<Exit> exits;
     private List<Lever> levers;
+    private List<Fluid> fluids;
 
     public ObjectHandler(Game game) {
         this.game = game;
@@ -30,6 +31,7 @@ public class ObjectHandler {
         this.lifts = new ArrayList<>();
         this.exits = new ArrayList<>();
         this.levers = new ArrayList<>();
+        this.fluids = new ArrayList<>();
         loadObjects();
     }
 
@@ -95,6 +97,15 @@ public class ObjectHandler {
         for (Door d : doors) {
             d.update();
         }
+        for (Fluid f : fluids) {
+            if (f.touched(game.getPlayer1(), 0)) {
+                player1.die();
+            }
+            if (f.touched(game.getPlayer2(), 1)) {
+                player2.die();
+            }
+            f.update();
+        }
     }
 
     public void draw(Graphics g) {
@@ -115,6 +126,9 @@ public class ObjectHandler {
         }
         for (Lever l : levers) {
             l.draw(g);
+        }
+        for (Fluid f : fluids) {
+            f.draw(g);
         }
     }
 
@@ -228,6 +242,7 @@ public class ObjectHandler {
         getLifts(level);
         getExits(level);
         getLevers(level);
+        getFluids(level);
     }
 
     private void getButtons(Level level) {
@@ -322,4 +337,19 @@ public class ObjectHandler {
             }
         }
     }
+
+    private void getFluids(Level level) {
+        for (int i = 0; i < level.getLvlData().length; i++) {
+            for (int j = 0; j < level.getLvlData()[0].length; j++) {
+                int id = level.getGreen()[i][j];
+
+                if (id == 200) {
+                    int type = level.getBlue()[i][j];
+                    Fluid f = new Fluid(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, type);
+                    fluids.add(f);
+                }
+            }
+        }
+    }
+
 }

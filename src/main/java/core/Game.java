@@ -9,6 +9,7 @@ import gamestates.GameState;
 import static gamestates.GameState.MENU;
 import static gamestates.GameState.PLAYING;
 import static gamestates.GameState.QUIT;
+import gamestates.Lost;
 import gamestates.Menu;
 import gamestates.Won;
 import levels.Level;
@@ -27,6 +28,7 @@ public class Game implements Runnable {
     private Player player1, player2;
     private LevelHandler levelHandler;
     private Won won;
+    private Lost lost;
     private Menu menu;
     private long startTime;
     private ScoreHandler scoreHandler;
@@ -54,6 +56,7 @@ public class Game implements Runnable {
         scoreHandler = new ScoreHandler();
         menu = new Menu(this);
         won = new Won(this);
+        lost = new Lost(this);
         player1 = new Watergirl(0, 0);
         player2 = new Fireboy(0, 0);
         levelHandler = new LevelHandler(this);
@@ -87,6 +90,8 @@ public class Game implements Runnable {
             }
             case WON ->
                 won.update();
+            case LOST ->
+                lost.update();
             case QUIT ->
                 System.exit(0);
         }
@@ -97,13 +102,17 @@ public class Game implements Runnable {
             case MENU ->
                 menu.draw(g);
             case PLAYING -> {
-                levelHandler.draw(g);
+                levelHandler.drawBackground(g);
                 objectHandler.draw(g);
+                levelHandler.draw(g);
                 player1.render(g);
                 player2.render(g);
             }
             case WON -> {
                 won.draw(g);
+            }
+            case LOST -> {
+                lost.draw(g);
             }
             case QUIT -> {
             }
@@ -174,6 +183,10 @@ public class Game implements Runnable {
 
     public Won getWon() {
         return won;
+    }
+
+    public Lost getLost() {
+        return lost;
     }
 
     private void resetPlayers() {
