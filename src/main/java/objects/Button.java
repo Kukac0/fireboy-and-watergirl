@@ -25,17 +25,23 @@ public class Button {
     }
 
     public void update() {
-        // Logic to update button state
+        // For future animations
     }
 
     public void draw(Graphics g) {
-        if (isPressed) {
-            g.setColor(new Color(100, 100, 100));
-            g.fillRect(x, y + height / 2, width, height / 2);
-        } else {
+        if (!isPressed) {
             g.setColor(Color.RED);
-            g.fillRect(x, y, width, height);
+            g.fillRect(x + width / 4, y + height, width / 2, height / -2);
+        } else {
+            g.setColor(Color.GREEN);
+            g.fillRect(x + width / 4, y + height, width / 2, height / -3);
         }
+        g.setColor(Color.ORANGE);
+        g.fillRect(x, y + height, width, height / -5);
+    }
+
+    public void reset() {
+        isPressed = false;
     }
 
     public boolean isPressed() {

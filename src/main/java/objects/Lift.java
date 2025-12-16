@@ -56,6 +56,16 @@ public class Lift {
         g.drawRect((int) x, (int) y, width, height);
     }
 
+    public void reset() {
+        y = startY;
+        isActive = false;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+        hitbox.y = (int) y;
+    }
+
     public int getId() {
         return id;
     }

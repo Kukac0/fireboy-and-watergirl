@@ -8,11 +8,11 @@ import entities.Player;
 import gamestates.GameState;
 import static gamestates.GameState.PLAYING;
 
-public class KeyBoardInputs implements KeyListener{
+public class KeyBoardInputs implements KeyListener {
 
     private GamePanel gamePanel;
 
-    public KeyBoardInputs(GamePanel gamePanel){
+    public KeyBoardInputs(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
     }
 
@@ -25,19 +25,25 @@ public class KeyBoardInputs implements KeyListener{
     public void keyReleased(KeyEvent e) {
         Player player1 = gamePanel.getGame().getPlayer1();
         Player player2 = gamePanel.getGame().getPlayer2();
-        if (GameState.state == PLAYING){
-            switch(e.getKeyCode()){
-                case KeyEvent.VK_W -> player1.setJump(false);
-                case KeyEvent.VK_A -> player1.setLeft(false);
-                case KeyEvent.VK_D -> player1.setRight(false);
-                
-                case KeyEvent.VK_UP -> player2.setJump(false);
-                case KeyEvent.VK_LEFT -> player2.setLeft(false);
-                case KeyEvent.VK_RIGHT -> player2.setRight(false);
+        if (GameState.state == PLAYING) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_W ->
+                    player1.setJump(false);
+                case KeyEvent.VK_A ->
+                    player1.setLeft(false);
+                case KeyEvent.VK_D ->
+                    player1.setRight(false);
+
+                case KeyEvent.VK_UP ->
+                    player2.setJump(false);
+                case KeyEvent.VK_LEFT ->
+                    player2.setLeft(false);
+                case KeyEvent.VK_RIGHT ->
+                    player2.setRight(false);
                 default -> {
                 }
             }
-        }  
+        }
     }
 
     @Override
@@ -53,29 +59,49 @@ public class KeyBoardInputs implements KeyListener{
                 }
             }
             case PLAYING -> {
-                switch (e.getKeyCode()){
-                    case KeyEvent.VK_W: player1.setJump(true); break;
-                    case KeyEvent.VK_A: player1.setLeft(true); break;
-                    case KeyEvent.VK_D: player1.setRight(true); break;
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_W:
+                        player1.setJump(true);
+                        break;
+                    case KeyEvent.VK_A:
+                        player1.setLeft(true);
+                        break;
+                    case KeyEvent.VK_D:
+                        player1.setRight(true);
+                        break;
 
-                    case KeyEvent.VK_UP: player2.setJump(true); break;
-                    case KeyEvent.VK_LEFT: player2.setLeft(true); break;
-                    case KeyEvent.VK_RIGHT: player2.setRight(true); break;
-                    
+                    case KeyEvent.VK_UP:
+                        player2.setJump(true);
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        player2.setLeft(true);
+                        break;
+                    case KeyEvent.VK_RIGHT:
+                        player2.setRight(true);
+                        break;
+
+                    case KeyEvent.VK_R:
+                        gamePanel.getGame().startNewGame();
+                        break;
+
                     case KeyEvent.VK_T:     //for testing
-                            GameState.state = GameState.WON;
-                            gamePanel.getGame().getWon().setCompletionTime();        
-                            break;
-                    default: break;
+                        GameState.state = GameState.WON;
+                        gamePanel.getGame().getWon().setCompletionTime();
+                        break;
+
+                    default:
+                        break;
                 }
-            }        
-            
+            }
+
             case WON -> {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER)
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     gamePanel.getGame().getWon().saveScore();
-                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                }
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     GameState.state = GameState.MENU;
-                
+                }
+
             }
         }
     }

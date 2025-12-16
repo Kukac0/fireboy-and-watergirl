@@ -206,10 +206,10 @@ public class Player {
         if (!left && !right) {
             moving = false;
         }
-        if (tileId == 21) {
+        if (tileId == 21 || tileId == 35 || tileId == 38) {
             xDiff = hitbox.x - (float) (tileX * TILES_SIZE);
             slopeY = (tileY * TILES_SIZE) + xDiff;
-        } else if (tileId == 28) {
+        } else if (tileId == 28 || tileId == 37 || tileId == 39) {
             xDiff = (hitbox.x + hitbox.width) - (float) (tileX * TILES_SIZE);
             slopeY = (tileY * TILES_SIZE) + TILES_SIZE - xDiff;
         }
@@ -307,6 +307,19 @@ public class Player {
 
     public float getAirSpeed() {
         return airSpeed;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+        updateHitbox();
+    }
+
+    public float getY() {
+        return y;
     }
 
     public void setY(float y) {

@@ -11,10 +11,12 @@ public class LevelHandler {
     private Game game;
     private BufferedImage[] levelSprite;
     private Level level1;
+    private BufferedImage backgroundImg;
 
     public LevelHandler(Game game) {
         this.game = game;
         importLevelSprites();
+        backgroundImg = LoadSave.GetSpriteAtlas(LoadSave.LEVEL_BACKGROUND);
         level1 = LoadSave.GetLevelData();
     }
 
@@ -30,6 +32,7 @@ public class LevelHandler {
     }
 
     public void draw(Graphics g) {
+        g.drawImage(backgroundImg, 0, 0, Game.GAME_WIDTH, Game.GAME_HEIGHT, null);
 
         for (int j = 0; j < Game.TILES_IN_HEIGHT; j++) {
             for (int i = 0; i < Game.TILES_IN_WIDTH; i++) {

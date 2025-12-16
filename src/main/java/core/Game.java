@@ -69,6 +69,7 @@ public class Game implements Runnable {
 
     public void startNewGame() {
         resetPlayers();
+        objectHandler.reset();
         startTime = System.currentTimeMillis();
 
         GameState.state = PLAYING;
@@ -97,9 +98,9 @@ public class Game implements Runnable {
                 menu.draw(g);
             case PLAYING -> {
                 levelHandler.draw(g);
+                objectHandler.draw(g);
                 player1.render(g);
                 player2.render(g);
-                objectHandler.draw(g);
             }
             case WON -> {
                 won.draw(g);
@@ -177,6 +178,8 @@ public class Game implements Runnable {
 
     private void resetPlayers() {
         Level level = levelHandler.getCurrentLevel();
+        level.setStartPos();
+
         player1.setLocation(level.p1StartX, level.p1StartY);
         player2.setLocation(level.p2StartX, level.p2StartY);
 

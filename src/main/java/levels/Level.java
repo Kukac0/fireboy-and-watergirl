@@ -1,23 +1,17 @@
 package levels;
 
-import java.awt.Button;
-import java.util.ArrayList;
-import java.util.List;
-
-import objects.Door;
+import static core.Game.TILES_SIZE;
 
 public class Level {
 
     private int[][] lvlData;
     private int[][] greenData;
     private int[][] blueData;
-    private List<Button> buttons = new ArrayList<>();
-    private List<Door> doors = new ArrayList<>();
 
-    public final int p1StartX = 200;
-    public final int p1StartY = 200;
-    public final int p2StartX = 250;
-    public final int p2StartY = 200;
+    public int p1StartX;
+    public int p1StartY;
+    public int p2StartX;
+    public int p2StartY;
 
     public Level(int[][] lvlData, int[][] greenData, int[][] blueData) {
         this.lvlData = lvlData;
@@ -27,6 +21,23 @@ public class Level {
 
     public int getSpriteIndex(int x, int y) {
         return lvlData[y][x];
+    }
+
+    public void setStartPos() {
+        for (int i = 0; i < getLvlData().length; i++) {
+            for (int j = 0; j < getLvlData()[0].length; j++) {
+                int id = getGreen()[i][j];
+
+                if (id == 100) {
+                    p1StartX = j * TILES_SIZE;
+                    p1StartY = i * TILES_SIZE;
+                }
+                if (id == 101) {
+                    p2StartX = j * TILES_SIZE;
+                    p2StartY = i * TILES_SIZE;
+                }
+            }
+        }
     }
 
     public int[][] getLvlData() {

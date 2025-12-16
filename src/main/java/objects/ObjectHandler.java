@@ -1,13 +1,16 @@
 package objects;
 
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
 import core.Game;
 import static core.Game.TILES_SIZE;
 import entities.Player;
+import gamestates.GameState;
 import levels.Level;
+import static utils.HelpMethods.CanMoveHere;
 
 public class ObjectHandler {
 
@@ -34,8 +37,18 @@ public class ObjectHandler {
         Player player1 = game.getPlayer1();
         Player player2 = game.getPlayer2();
 
-        checkObjectHit(player1);
-        checkObjectHit(player2);
+        checkLiftHit(player1);
+        checkLiftHit(player2);
+
+        checkBoxHit(player1);
+        checkBoxHit(player2);
+
+        for (Lift l : lifts) {
+            l.setActive(false);
+        }
+        for (Door d : doors) {
+            d.setOpen(false);
+        }
 
         for (Button b : buttons) {
             boolean player1Touch = player1.getHitbox().intersects(b.getHitbox());
@@ -46,34 +59,42 @@ public class ObjectHandler {
                 objectActivated(b.getId());
             } else {
                 b.setPressed(false);
-                objectDeactivated(b.getId());
             }
             b.update();
         }
-        for (Door d : doors) {
-            d.update();
-        }
         for (Box b : boxes) {
-            b.update();
+            b.update(game.getLevelHandler().getCurrentLevel().getLvlData());
         }
-        for (Lift l : lifts) {
-            l.update();
-        }
+        boolean allExitsActive = true;
         for (Exit e : exits) {
-            e.update();
+            e.checkExit(player1, 0);
+            e.checkExit(player2, 1);
+            if (!e.isActive()) {
+                allExitsActive = false;
+            }
         }
+        if (allExitsActive && !exits.isEmpty()) {
+            GameState.state = GameState.WON;
+            game.getWon().setCompletionTime();
+        }
+
         for (Lever l : levers) {
             boolean player1Touch = player1.getHitbox().intersects(l.getHitbox());
             boolean player2Touch = player2.getHitbox().intersects(l.getHitbox());
 
             l.touch(player1Touch || player2Touch);
+
             if (l.isOn()) {
                 objectActivated(l.getId());
-            } else {
-                objectDeactivated(l.getId());
             }
+            l.update();
         }
-
+        for (Lift l : lifts) {
+            l.update();
+        }
+        for (Door d : doors) {
+            d.update();
+        }
     }
 
     public void draw(Graphics g) {
@@ -97,6 +118,24 @@ public class ObjectHandler {
         }
     }
 
+    public void reset() {
+        for (Button b : buttons) {
+            b.reset();
+        }
+        for (Door d : doors) {
+            d.reset();
+        }
+        for (Box b : boxes) {
+            b.reset();
+        }
+        for (Lift l : lifts) {
+            l.reset();
+        }
+        for (Lever l : levers) {
+            l.reset();
+        }
+    }
+
     private void objectActivated(int id) {
         for (Door door : doors) {
             if (door.getId() == id) {
@@ -110,27 +149,71 @@ public class ObjectHandler {
         }
     }
 
-    private void objectDeactivated(int id) {
-        for (Door door : doors) {
-            if (door.getId() == id) {
-                door.setOpen(false);
-            }
-        }
+    public void checkLiftHit(Player player) {
+        Rectangle playerHitbox = player.getHitbox();
         for (Lift lift : lifts) {
-            if (lift.getId() == id) {
-                lift.setActive(false);
+            Rectangle liftHitbox = lift.getHitbox();
+            if (playerHitbox.intersects(liftHitbox)) {
+                Rectangle intersection = playerHitbox.intersection(liftHitbox);
+
+                if (intersection.width > intersection.height) {             //Vertical collision
+                    if (playerHitbox.y < liftHitbox.y) {
+                        if (player.getAirSpeed() >= 0) {
+                            player.setInAir(false);
+                            player.setAirSpeed(0);
+                            player.setY(liftHitbox.y - playerHitbox.height - 2);
+                        }
+                    } else {
+                        float pushedY = playerHitbox.y + intersection.height;
+                        if (CanMoveHere(playerHitbox.x, pushedY, playerHitbox.width, playerHitbox.height, game.getLevelHandler().getCurrentLevel().getLvlData())) {
+                            player.setAirSpeed(0);
+                            player.setY(player.getY() + intersection.height);
+                        } else {
+                            lift.setY(playerHitbox.y - liftHitbox.height);
+                        }
+                    }
+
+                } else if (intersection.width < intersection.height) {      //Horizontal collision
+                    if (playerHitbox.x < liftHitbox.x) {
+                        player.setX(player.getX() - intersection.width);
+                    } else {
+                        player.setX(player.getX() + intersection.width);
+                    }
+                }
             }
         }
     }
 
-    public void checkObjectHit(Player player) {
-        for (Lift lift : lifts) {
-            if (lift.getHitbox().intersects(player.getHitbox())) {
-                if (player.getAirSpeed() > 0 && player.getHitbox().y + player.getHitbox().height < lift.getHitbox().y + lift.getHitbox().height / 2) {
-                    player.setInAir(false);
-                    player.setAirSpeed(0);
+    public void checkBoxHit(Player player) {
+        int[][] lvlData = game.getLevelHandler().getCurrentLevel().getLvlData();
 
-                    player.setY(lift.getHitbox().y - player.getHitbox().height - 2);
+        for (Box box : boxes) {
+            if (player.getHitbox().intersects(box.getHitbox())) {
+                Rectangle intersection = player.getHitbox().intersection(box.getHitbox());
+
+                if (intersection.width > intersection.height) {     //Vertical collision
+                    if (player.getHitbox().y < box.getHitbox().y) {
+                        if (player.getAirSpeed() >= 0
+                                && player.getHitbox().y + player.getHitbox().height <= box.getHitbox().y + box.getHitbox().height / 2 + 5) {
+
+                            player.setInAir(false);
+                            player.setAirSpeed(0);
+                            player.setY(box.getHitbox().y - player.getHitbox().height - 1);
+                        }
+                    } else {
+                        if (player.getAirSpeed() < 0) {
+                            player.setAirSpeed(0);
+                            player.setY(player.getY() + intersection.height);
+                        }
+                    }
+                } else {    //Horizontal collision
+                    if (player.getHitbox().x < box.getHitbox().x) {
+                        box.push(1.0f);
+                        player.setX(player.getX() - intersection.width);
+                    } else {
+                        box.push(-1.0f);
+                        player.setX(player.getX() + intersection.width);
+                    }
                 }
             }
         }
@@ -141,9 +224,10 @@ public class ObjectHandler {
 
         getButtons(level);
         getDoors(level);
-        //getBoxes(level);
+        getBoxes(level);
         getLifts(level);
-        //getExits(level);
+        getExits(level);
+        getLevers(level);
     }
 
     private void getButtons(Level level) {
@@ -172,8 +256,17 @@ public class ObjectHandler {
         }
     }
 
-    private List<Box> getBoxes(Level level) {
-        return null;
+    private void getBoxes(Level level) {
+        for (int i = 0; i < level.getLvlData().length; i++) {
+            for (int j = 0; j < level.getLvlData()[0].length; j++) {
+                int id = level.getGreen()[i][j];
+
+                if (id == 2) {
+                    Box box = new Box(j * TILES_SIZE, i * TILES_SIZE, (int) (1.5 * TILES_SIZE), (int) (1.5 * TILES_SIZE));
+                    boxes.add(box);
+                }
+            }
+        }
     }
 
     private void getLifts(Level level) {
@@ -197,15 +290,36 @@ public class ObjectHandler {
                     }
 
                     Lift lift = new Lift(xPos, i * TILES_SIZE + TILES_SIZE / 2 - 1, length * TILES_SIZE, TILES_SIZE / 2,
-                            i * TILES_SIZE + (int) (2.5 * TILES_SIZE), 0.5f, switchId);
+                            i * TILES_SIZE + 3 * TILES_SIZE, 0.5f, switchId);
                     this.lifts.add(lift);
                 }
             }
         }
     }
 
-    private List<Exit> getExits(Level level) {
-        return null;
+    private void getExits(Level level) {
+        for (int i = 0; i < level.getLvlData().length; i++) {
+            for (int j = 0; j < level.getLvlData()[0].length; j++) {
+                int id = level.getGreen()[i][j];
+
+                if (id == 4) {
+                    Exit exit = new Exit(j * TILES_SIZE, i * TILES_SIZE, 2 * TILES_SIZE, 3 * TILES_SIZE, level.getBlue()[i][j]);
+                    this.exits.add(exit);
+                }
+            }
+        }
     }
 
+    private void getLevers(Level level) {
+        for (int i = 0; i < level.getLvlData().length; i++) {
+            for (int j = 0; j < level.getLvlData()[0].length; j++) {
+                int id = level.getGreen()[i][j];
+
+                if (id == 5) {
+                    Lever lever = new Lever(j * TILES_SIZE, i * TILES_SIZE, TILES_SIZE, TILES_SIZE, level.getBlue()[i][j]);
+                    levers.add(lever);
+                }
+            }
+        }
+    }
 }

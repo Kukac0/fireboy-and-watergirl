@@ -33,14 +33,14 @@ public class Lever {
     public void draw(Graphics g) {
         if (isOn) {
             g.setColor(Color.GREEN);
-            g.fillRect(x + width / 2, y, width / 2, height);
-            g.setColor(Color.DARK_GRAY);
-            g.fillRect(x, y + (height * 4 / 5), width, height / 5);
+            g.fillRect(x, y + height / 2, width / 2, height / 2);
+            g.setColor(Color.ORANGE);
+            g.fillRect(x, y + height, width, height / -5);
         } else {
             g.setColor(Color.RED);
-            g.fillRect(x, y, width / 2, height);
-            g.setColor(Color.DARK_GRAY);
-            g.fillRect(x, y + (height * 4 / 5), width, height / 5);
+            g.fillRect(x + width / 2, y + height / 2, width / 2, height / 2);
+            g.setColor(Color.ORANGE);
+            g.fillRect(x, y + height, width, height / -5);
         }
     }
 
@@ -50,6 +50,11 @@ public class Lever {
         }
 
         this.isTouchedByPlayer = isPlayerTouching;
+    }
+
+    public void reset() {
+        isOn = false;
+        isTouchedByPlayer = false;
     }
 
     public boolean isOn() {

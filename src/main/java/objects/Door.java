@@ -36,7 +36,10 @@ public class Door {
             g.setColor(new Color(60, 30, 10));
             g.drawRect(x, y, width, height);
         }
+    }
 
+    public void reset() {
+        isOpen = false;
     }
 
     public boolean isOpen() {
